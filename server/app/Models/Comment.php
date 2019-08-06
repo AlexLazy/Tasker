@@ -6,13 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
+  protected $fillable = [
+    'user_id', 'task_id', 'content'
+  ];
+
   public function author()
   {
-    return $this->hasOne('App\Models\User');
+    return $this->belongsTo('App\Models\User', 'user_id');
   }
 
   public function task()
   {
-    return $this->hasOne('App\Models\Task');
+    return $this->belongsTo('App\Models\Task');
   }
 }

@@ -10,7 +10,9 @@ class TaskMutator
 {
   public function create($root, array $args, GraphQLContext $context)
   {
-    if (!Project::where('id', '=', $args['project_id'])->exists()) return null;
+    $project = Project::where('id', '=', $args['project_id']);
+    if (!$project->exists() || $project->pluck('user_id')[0] != $context->user->id) return null;
+    
     $task = new Task;
     $task->user_id = $context->user->id;
     $task->fill($args);

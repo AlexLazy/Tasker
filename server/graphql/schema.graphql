@@ -25,6 +25,7 @@ type Mutation @middleware(checks: ["auth:api", "admin"]) {
     updateTask(id: ID!, title: String!): Task @update
     deleteTask(id: ID!): Task @delete
 }
+
 extend type Mutation {
     login(id_token: String!): LoginPayload
         @field(resolver: "App\\GraphQL\\Mutations\\AccountMutator@login")
@@ -42,14 +43,14 @@ type Query @middleware(checks: ["auth:api"]) {
 }
 
 enum UserRole {
-    admin @enum(value: 0)
-    rockstar @enum(value: 1)
+    ADMIN @enum(value: 0)
+    ROCKSTAR @enum(value: 1)
 }
 
 enum TaskStatus {
-    open @enum(value: 0)
-    checks @enum(value: 1)
-    closed @enum(value: 2)
+    OPEN @enum(value: 0)
+    CHECKS @enum(value: 1)
+    CLOSED @enum(value: 2)
 }
 
 type LoginPayload {
@@ -78,8 +79,19 @@ type Project {
 
 type Task {
     id: ID!
-    project_id: Int!
     title: String!
+    content: String!
+    price_total: Int
+    price: Int
+    status: TaskStatus
+    project: Project @belongsTo
+    comments: [Comment!]! @hasMany
+    author: User @belongsTo
+}
+
+type Comment {
+    id: ID!
+    task_id: Int!
     content: String!
     price_total: Int
     price: Int

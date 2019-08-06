@@ -19,7 +19,7 @@ class IsAdmin
       $token = substr($request->header('Authorization'), 7);
       $user = User::where('api_token',$token)->first();
 
-      if ($user && $user->role !== 'admin' )
+      if ($user && $user->role !== '0' )
       {
         abort(403, 'Unauthorized action.');
       }
