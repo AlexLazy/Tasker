@@ -20,4 +20,16 @@ class TaskMutator
 
     return $task;
   }
+
+  public function update($root, array $args, GraphQLContext $context)
+  {
+    $project = Project::where('id', '=', $args['project_id']);
+    if (!$project->exists() || $project->pluck('user_id')[0] != $context->user->id) return null;
+
+    $task = Task::find($args['id']);
+    $task->fill($args);
+    $task->save();
+
+    return $task;
+  }
 }

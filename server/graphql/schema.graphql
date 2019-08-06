@@ -22,8 +22,29 @@ type Mutation @middleware(checks: ["auth:api", "admin"]) {
         price: Int
         status: TaskStatus
     ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@create")
-    updateTask(id: ID!, title: String!): Task @update
+    updateTask(
+        id: ID!
+        project_id: Int!
+        title: String!
+        content: String!
+        price_total: Int
+        price: Int
+        status: TaskStatus!
+    ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@update")
     deleteTask(id: ID!): Task @delete
+
+    addUserToProject(project_id: Int!, user_id: Int!): Project
+        @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@addUser")
+    # removeUserToProject(project_id: Int!, user_id: Int!): Project
+    #     @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@removeUser")
+}
+
+extend type Mutation @middleware(checks: ["auth:api"]) {
+    createComment(task_id: Int!, content: String!): Comment
+        @field(resolver: "App\\GraphQL\\Mutations\\CommentMutator@create")
+    updateComment(id: ID!, content: String!): Comment
+        @field(resolver: "App\\GraphQL\\Mutations\\CommentMutator@update")
+    deleteComment(id: ID!): Comment @delete
 }
 
 extend type Mutation {
@@ -43,14 +64,14 @@ type Query @middleware(checks: ["auth:api"]) {
 }
 
 enum UserRole {
-    ADMIN @enum(value: 0)
-    ROCKSTAR @enum(value: 1)
+    ADMIN
+    ROCKSTAR
 }
 
 enum TaskStatus {
-    OPEN @enum(value: 0)
-    CHECKS @enum(value: 1)
-    CLOSED @enum(value: 2)
+    OPEN
+    CHECKS
+    CLOSED
 }
 
 type LoginPayload {
@@ -93,9 +114,5 @@ type Comment {
     id: ID!
     task_id: Int!
     content: String!
-    price_total: Int
-    price: Int
-    status: TaskStatus
     author: User @belongsTo
 }
-# syncWithoutDetaching([3])

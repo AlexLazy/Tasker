@@ -21,7 +21,7 @@ class CreateTasksTable extends Migration
             $table->text('content');
             $table->integer('price_total')->nullable();
             $table->integer('price')->nullable();
-            $table->enum('status', ['0', '1', '2'])->default('0');
+            $table->enum('status', ['OPEN', 'CHECKS', 'CLOSED'])->default('OPEN');
             $table->timestamps();
         });
     }
