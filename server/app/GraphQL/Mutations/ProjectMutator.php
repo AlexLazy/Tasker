@@ -29,4 +29,17 @@ class ProjectMutator
 
     return $project;
   }
+
+  public function removeUser($root, array $args, GraphQLContext $context)
+  {
+    $project = Project::find($args['project_id']);
+    if (!$project ||
+      $project->author->id !== $context->user->id ||
+      !$project->users->where('id', $args['user_id'])->count() ||
+      $args['user_id'] === $context->user->id) return null;
+
+    $project->users()->detach($args['user_id']);
+
+    return $project;
+  }
 }

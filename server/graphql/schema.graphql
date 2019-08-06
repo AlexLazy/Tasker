@@ -35,8 +35,8 @@ type Mutation @middleware(checks: ["auth:api", "admin"]) {
 
     addUserToProject(project_id: Int!, user_id: Int!): Project
         @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@addUser")
-    # removeUserToProject(project_id: Int!, user_id: Int!): Project
-    #     @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@removeUser")
+    removeUserFromProject(project_id: Int!, user_id: Int!): Project
+        @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@removeUser")
 }
 
 extend type Mutation @middleware(checks: ["auth:api"]) {
