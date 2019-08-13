@@ -48,19 +48,19 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
 }
 
 extend type Mutation {
-    login(id_token: String!): LoginPayload
+    login(id_token: String!): String!
         @field(resolver: "App\\GraphQL\\Mutations\\AccountMutator@login")
 }
 
 type Query @middleware(checks: ["auth:api"]) {
-    users: [User!]! @all(model: "App\\Models\\User")
-    user(id: ID @eq): User @find(model: "App\\Models\\User")
+    users: [User!]! @all
+    me: User @auth
 
-    project(id: ID @eq): Project @find(model: "App\\Models\\Project")
-    projects: [Project!]! @all(model: "App\\Models\\Project")
+    project(id: ID @eq): Project @find
+    projects: [Project!]! @all
 
     task(id: ID @eq): Task @find(model: "App\\Models\\Task")
-    tasks: [Task!]! @all(model: "App\\Models\\Task")
+    tasks: [Task!]! @paginate
 }
 
 enum UserRole {
@@ -74,10 +74,6 @@ enum TaskStatus {
     CLOSED
 }
 
-type LoginPayload {
-    token: String!
-}
-
 type User {
     id: ID!
     name: String!
@@ -86,7 +82,7 @@ type User {
     role: UserRole!
     created_at: DateTime!
     updated_at: DateTime!
-    own_projects: [Project!]! @hasMany
+    own_projects: [Project!]! @hasMany(relation: "own_projects")
     projects: [Project!]! @belongsToMany
 }
 

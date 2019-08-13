@@ -32,8 +32,6 @@ class AccountMutator
         $token = $user->api_token;
       }
     }
-    return [
-      'token' => $token
-    ];
+    return $token;
   }
 }
