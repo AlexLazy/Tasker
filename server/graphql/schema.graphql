@@ -57,9 +57,9 @@ type Query @middleware(checks: ["auth:api"]) {
     me: User @auth
 
     project(id: ID @eq): Project @find
-    projects: [Project!]! @all
+    # projects: [Project!]! @all
 
-    task(id: ID @eq): Task @find(model: "App\\Models\\Task")
+    task(id: ID @eq): Task @find
     tasks: [Task!]! @paginate
 }
 

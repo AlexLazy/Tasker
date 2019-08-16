@@ -10,7 +10,7 @@ class AccountMutator
 {
   public function login($root, array $args)
   {
-    $token = '';
+    $token = 'User not found';
     $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
     $payload = $client->verifyIdToken($args['id_token']);
     

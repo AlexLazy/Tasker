@@ -1,1 +1,3 @@
-export { default as FullPageLoading } from './FullPageLoading';
+export * from './FullPageLoading';
+export * from './Header';
+export * from './ProjectCard';

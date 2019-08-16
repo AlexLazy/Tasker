@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './index.css';
 
 import { BrowserRouter } from 'react-router-dom';
 
@@ -10,7 +11,7 @@ import { ApolloProvider, useApolloClient, useQuery } from '@apollo/react-hooks';
 import { GET_CURRENT_USER, IS_LOGGED_IN } from './gql/queries';
 import { resolvers, typeDefs } from './resolvers';
 
-import FullPageLoading from './components/FullPageLoading';
+import { FullPageLoading } from './components';
 import Pages from './pages';
 import Login from './pages/Login';
 
@@ -32,9 +33,7 @@ const client = new ApolloClient({
 const IsLoggedIn = () => {
   const client = useApolloClient();
   const { data: login } = useQuery(IS_LOGGED_IN);
-  const { data, loading } = useQuery(GET_CURRENT_USER, {
-    fetchPolicy: 'network-only'
-  });
+  const { data, loading } = useQuery(GET_CURRENT_USER);
 
   if (loading) return <FullPageLoading />;
   if (data && data.me) {

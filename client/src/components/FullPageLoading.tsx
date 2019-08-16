@@ -113,7 +113,7 @@ const useStyles = makeStyles({
   }
 });
 
-const FullPageLoading: FC = ({ children }) => {
+export const FullPageLoading: FC = ({ children }) => {
   const classes = useStyles();
 
   return (
@@ -129,5 +129,3 @@ const FullPageLoading: FC = ({ children }) => {
     </CssBaseline>
   );
 };
-
-export default FullPageLoading;

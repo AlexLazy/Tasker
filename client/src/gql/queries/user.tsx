@@ -16,3 +16,14 @@ export const GET_CURRENT_USER = gql`
     }
   }
 `;
+
+export const GET_USER_PROJECTS = gql`
+  query GetCurrentUser {
+    me {
+      projects {
+        id
+        title
+      }
+    }
+  }
+`;
