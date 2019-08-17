@@ -1,10 +1,8 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 
-import { ApolloError } from 'apollo-client/errors/ApolloError';
+import { useApolloClient } from '@apollo/react-hooks';
 import { useMutation } from '@apollo/react-hooks';
 import { LOGIN } from '../gql/mutations';
-
-import Snackbar from '@material-ui/core/Snackbar';
 
 import GoogleLogin, {
   GoogleLoginResponse,
@@ -14,27 +12,36 @@ import GoogleLogin, {
 import { FullPageLoading } from '../components';
 
 const Login: FC = () => {
+  const client = useApolloClient();
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-  const [state, setState] = useState<{
-    open: boolean;
-    text: string | ApolloError;
-  }>({
-    text: 'top',
-    open: false
-  });
-  const { text, open } = state;
   const [login, { loading }] = useMutation<{ login: string }>(LOGIN, {
     onCompleted({ login }) {
       if (login === 'User not found') {
-        setState({ text: 'Такого пользователя не существует.', open: true });
+        client.writeData({
+          data: {
+            error: {
+              __typename: 'error',
+              text: 'Такого пользователя не существует.',
+              open: true
+            }
+          }
+        });
       } else {
         localStorage.setItem('token', 'Bearer ' + login);
         document.location.reload();
       }
     },
     onError(error) {
-      setState({ text: error.message, open: true });
+      client.writeData({
+        data: {
+          error: {
+            __typename: 'error',
+            text: error.message,
+            open: true
+          }
+        }
+      });
     }
   });
 
@@ -50,10 +57,6 @@ const Login: FC = () => {
     });
   };
 
-  function handleClose() {
-    setState({ ...state, open: false });
-  }
-
   return (
     <FullPageLoading>
       {!loading && clientId && (
@@ -65,16 +68,6 @@ const Login: FC = () => {
           cookiePolicy={'single_host_origin'}
         />
       )}
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        message={text}
-      />
     </FullPageLoading>
   );
 };

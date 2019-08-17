@@ -16,7 +16,6 @@ type Mutation @middleware(checks: ["auth:api", "admin"]) {
 
     createTask(
         project_id: Int!
-        title: String!
         content: String!
         price_total: Int
         price: Int
@@ -96,7 +95,6 @@ type Project {
 
 type Task {
     id: ID!
-    title: String!
     content: String!
     price_total: Int
     price: Int

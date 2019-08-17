@@ -6,6 +6,17 @@ export const IS_LOGGED_IN = gql`
   }
 `;
 
+export const GET_LOCAL_CURRENT_USER = gql`
+  query GetLocalCurrentUser {
+    me @client {
+      name
+      email
+      avatar
+      role
+    }
+  }
+`;
+
 export const GET_CURRENT_USER = gql`
   query GetCurrentUser {
     me {
@@ -20,9 +31,20 @@ export const GET_CURRENT_USER = gql`
 export const GET_USER_PROJECTS = gql`
   query GetCurrentUser {
     me {
+      role
       projects {
         id
         title
+        users {
+          id
+          name
+          email
+          avatar
+        }
+        tasks {
+          price
+          price_total
+        }
       }
     }
   }

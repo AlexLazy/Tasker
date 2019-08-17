@@ -21,16 +21,20 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       marginTop: theme.spacing(3),
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(8)
     },
     navigation: {
-      marginTop: 'auto'
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      width: '100%'
     }
   })
 );
 
 const Pages: FC = () => {
   const classes = useStyles();
+
   return (
     <CssBaseline>
       <Fragment>

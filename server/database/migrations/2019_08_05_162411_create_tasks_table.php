@@ -16,14 +16,19 @@ class CreateTasksTable extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('project_id');
-            $table->string('title');
+            $table->bigInteger('project_id')->unsigned();
             $table->text('content');
             $table->integer('price_total')->nullable();
             $table->integer('price')->nullable();
             $table->enum('status', ['OPEN', 'CHECKS', 'CLOSED'])->default('OPEN');
             $table->timestamps();
         });
+        Schema::table('tasks', function (Blueprint $table) {
+          $table->foreign('project_id')
+            ->references('id')
+            ->on('projects')
+            ->onDelete('cascade');
+      });
     }
 
     /**
