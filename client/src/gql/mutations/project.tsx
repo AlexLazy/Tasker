@@ -7,3 +7,11 @@ export const DELETE_PROJECT = gql`
     }
   }
 `;
+
+export const ADD_PROJECT = gql`
+  mutation AddProject($title: String!) {
+    createProject(title: $title) {
+      title
+    }
+  }
+`;
