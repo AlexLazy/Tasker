@@ -7,7 +7,6 @@ import { green } from '@material-ui/core/colors';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -15,6 +14,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import ProjectCardUserAdd from './ProjectCardUserAdd';
+import ProjectCardUserRemove from './ProjectCardUserRemove';
 
 import { IUser } from './ProjectCard';
 
@@ -80,9 +80,7 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
     <Fragment>
       <CardActions disableSpacing>
         <ProjectCardUserAdd id={id} inProjectUsers={inProjectUsers} />
-        <IconButton aria-label='Удалить пользователя с проекта'>
-          <PersonAddDisabledIcon />
-        </IconButton>
+        <ProjectCardUserRemove id={id} inProjectUsers={inProjectUsers} />
         <IconButton
           className={classes.deleteBtn}
           onClick={handleDelete}

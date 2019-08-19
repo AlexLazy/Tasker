@@ -1,12 +1,10 @@
 import gql from 'graphql-tag';
 
-export const GET_PROJECT_USERS = gql`
-  mutation GetProjectUsers($id: ID!) {
+export const GET_PROJECT_AUTHOR = gql`
+  query GetProjectAuthor($id: ID!) {
     project(id: $id) {
-      users {
-        name
-        email
-        avatar
+      author {
+        id
       }
     }
   }

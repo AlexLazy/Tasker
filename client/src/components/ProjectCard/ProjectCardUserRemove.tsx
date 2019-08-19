@@ -1,12 +1,11 @@
 import React, { FC, Fragment, useState } from 'react';
 
 import { useApolloClient, useMutation } from '@apollo/react-hooks';
-import { GET_USERS, GET_USER_PROJECTS } from '../../gql/queries';
-import { ADD_USER_TO_PROJECT } from '../../gql/mutations';
+import { GET_USER_PROJECTS, GET_PROJECT_AUTHOR } from '../../gql/queries';
+import { REMOVE_USER_TO_PROJECT } from '../../gql/mutations';
 
-import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import List from '@material-ui/core/List';
@@ -18,24 +17,32 @@ import ListItemText from '@material-ui/core/ListItemText';
 import CircleLoading from '../CircleLoading';
 import { IUser } from './ProjectCard';
 
-export interface ProjectCardUserAddProps {
+export interface IAuthor {
+  project: {
+    author: {
+      id: number;
+    };
+  };
+}
+
+export interface ProjectCardUserRemoveProps {
   id: number;
   inProjectUsers: IUser[];
 }
 
-const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
+const ProjectCardUserRemove: FC<ProjectCardUserRemoveProps> = ({
   id,
   inProjectUsers
 }) => {
   const client = useApolloClient();
-  const [mutateAddUser] = useMutation(ADD_USER_TO_PROJECT, {
+  const [mutateRemoveUser] = useMutation(REMOVE_USER_TO_PROJECT, {
     refetchQueries: [
       {
         query: GET_USER_PROJECTS
       }
     ],
-    onCompleted({ addUserToProject }) {
-      !addUserToProject &&
+    onCompleted({ removeUserFromProject }) {
+      !removeUserFromProject &&
         client.writeData({
           data: {
             error: {
@@ -67,16 +74,13 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
   const handleClose = () => setOpen(false);
   const handleOpen = async () => {
     setIsLoading(true);
-    const { data } = await client.query<{ users: IUser[] }>({
-      query: GET_USERS
+    const { data } = await client.query<IAuthor>({
+      variables: { id },
+      query: GET_PROJECT_AUTHOR
     });
 
-    const users = data.users.filter(
-      ({ id }) =>
-        !inProjectUsers.reduce(
-          (prev, { id: inProjectId }) => prev || inProjectId === id,
-          false
-        )
+    const users = inProjectUsers.filter(
+      ({ id }) => data.project.author.id !== id
     );
 
     setUsers(users);
@@ -84,19 +88,13 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
     setOpen(true);
   };
 
-  const handleAddUser = (project_id: number, user_id: number) => async () => {
+  const handleRemoveUser = (
+    project_id: number,
+    user_id: number
+  ) => async () => {
     setIdUserLoading(user_id);
-    await mutateAddUser({ variables: { project_id, user_id } });
+    await mutateRemoveUser({ variables: { project_id, user_id } });
     setIdUserLoading(null);
-    setOpen(false);
-  };
-
-  const handleCreateUser = () => {
-    client.writeData({
-      data: {
-        isNewAccountOpen: true
-      }
-    });
     setOpen(false);
   };
 
@@ -104,11 +102,11 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
     <Fragment>
       <CircleLoading size={24} isLoading={isLoading}>
         <IconButton
-          aria-label='Добавить пользователя к проекту'
+          aria-label='Удалить пользователя с проекта'
           onClick={handleOpen}
           disabled={isLoading}
         >
-          <PersonAddIcon />
+          <PersonAddDisabledIcon />
         </IconButton>
       </CircleLoading>
       <Dialog
@@ -117,7 +115,9 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
         open={open}
       >
         <DialogTitle id='simple-dialog-title'>
-          Добавить пользователя на проект
+          {users.length
+            ? 'Удалить пользователя с проекта'
+            : 'К проекту ни кто не закреплен'}
         </DialogTitle>
         <List>
           {!isLoading &&
@@ -129,7 +129,7 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
               >
                 <ListItem
                   button
-                  onClick={handleAddUser(id, userId)}
+                  onClick={handleRemoveUser(id, userId)}
                   disabled={idUserLoading === userId}
                 >
                   <ListItemAvatar>
@@ -139,17 +139,9 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
                 </ListItem>
               </CircleLoading>
             ))}
-          <ListItem button onClick={handleCreateUser}>
-            <ListItemAvatar>
-              <Avatar>
-                <AddIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary='Добавить новый аккаунт' />
-          </ListItem>
         </List>
       </Dialog>
     </Fragment>
   );
 };
-export default ProjectCardUserAdd;
+export default ProjectCardUserRemove;
