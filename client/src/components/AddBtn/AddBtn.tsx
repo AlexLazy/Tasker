@@ -11,8 +11,9 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
+
+import CircleLoading from '../CircleLoading';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,6 +48,7 @@ interface AddBtn {
   ): Promise<void | ExecutionResult<any>>;
   loading: boolean;
   variables?: { [key: string]: any };
+  disabled?: boolean;
   children?: ReactChild;
 }
 
@@ -55,18 +57,14 @@ const AddBtn: FC<AddBtn> = ({
   reguest,
   loading,
   variables,
+  disabled = false,
   children
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  function handleOpen() {
-    setOpen(true);
-  }
-
-  function handleClose() {
-    setOpen(false);
-  }
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const handleDeleteProject = async () => {
     variables ? await reguest({ variables }) : await reguest();
@@ -88,6 +86,7 @@ const AddBtn: FC<AddBtn> = ({
       <Dialog
         open={open}
         onClose={handleClose}
+        fullWidth
         aria-labelledby='form-dialog-title'
       >
         <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
@@ -96,18 +95,15 @@ const AddBtn: FC<AddBtn> = ({
           <Button onClick={handleClose} color='primary'>
             Отмена
           </Button>
-          <div className={classes.wrapper}>
+          <CircleLoading size={24} isLoading={loading}>
             <Button
               onClick={handleDeleteProject}
               color='primary'
-              disabled={loading}
+              disabled={disabled || loading}
             >
               Подтвердить
             </Button>
-            {loading && (
-              <CircularProgress className={classes.progressBtn} size={24} />
-            )}
-          </div>
+          </CircleLoading>
         </DialogActions>
       </Dialog>
     </Fragment>

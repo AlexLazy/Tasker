@@ -17,6 +17,18 @@ export const GET_LOCAL_CURRENT_USER = gql`
   }
 `;
 
+export const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      name
+      email
+      avatar
+      role
+    }
+  }
+`;
+
 export const GET_CURRENT_USER = gql`
   query GetCurrentUser {
     me {

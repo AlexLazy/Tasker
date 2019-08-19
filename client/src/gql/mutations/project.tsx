@@ -15,3 +15,17 @@ export const ADD_PROJECT = gql`
     }
   }
 `;
+
+export const ADD_USER_TO_PROJECT = gql`
+  mutation AddUserToProject($project_id: Int!, $user_id: Int!) {
+    addUserToProject(project_id: $project_id, user_id: $user_id) {
+      users {
+        id
+        name
+        email
+        avatar
+        role
+      }
+    }
+  }
+`;

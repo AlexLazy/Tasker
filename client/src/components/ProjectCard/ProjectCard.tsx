@@ -22,22 +22,29 @@ const useStyles = makeStyles({
   }
 });
 
+export interface IUser {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
+}
+
 export interface ProjectCardProps {
   id: number;
   title: string;
-  users: {
-    id: number;
-    name: string;
-    email: string;
-    avatar: string;
-  }[];
+  users: IUser[];
   tasks: {
     price: number;
     price_total: number;
   }[];
 }
 
-const ProjectCard: FC<ProjectCardProps> = ({ id, title, users, tasks }) => {
+const ProjectCard: FC<ProjectCardProps> = ({
+  id,
+  title,
+  users: inProjectUsers,
+  tasks
+}) => {
   const classes = useStyles();
   const client = useApolloClient();
   const [isHover, setIsHover] = useState(false);
@@ -95,7 +102,7 @@ const ProjectCard: FC<ProjectCardProps> = ({ id, title, users, tasks }) => {
       onMouseLeave={() => setIsHover(false)}
     >
       <ProjectCardHeader
-        users={users}
+        users={inProjectUsers}
         role={role}
         price={price}
         price_total={price_total}
@@ -113,6 +120,7 @@ const ProjectCard: FC<ProjectCardProps> = ({ id, title, users, tasks }) => {
         id={id}
         mutateDeleteProject={mutateDeleteProject}
         loadingDeleteProject={loadingDeleteProject}
+        inProjectUsers={inProjectUsers}
       />
     </Card>
   );

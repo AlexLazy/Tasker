@@ -31,7 +31,7 @@ export const GET_USER_INFO = gql`
   }
 `;
 
-export const Header: FC = () => {
+const Header: FC = () => {
   const classes = useStyles();
   const client = useApolloClient();
   const { data } = useQuery(GET_USER_INFO);
@@ -94,3 +94,4 @@ export const Header: FC = () => {
     </AppBar>
   );
 };
+export default Header;

@@ -10,7 +10,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import FolderIcon from '@material-ui/icons/Folder';
 import FolderSharedIcon from '@material-ui/icons/FolderShared';
 
-import { Header } from '../components';
+import Header from '../components/Header';
 
 import Page404 from './404';
 import Projects from './Projects';

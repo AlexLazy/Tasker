@@ -45,15 +45,18 @@ const AddProjectBtn: FC = () => {
       }
     }
   );
+
   return (
     <AddBtn
       title='Добавить проект'
       reguest={mutateAddProject}
       loading={loadingAddProject}
       variables={{ title }}
+      disabled={!title}
     >
       <TextField
         label='Название проекта'
+        fullWidth
         onChange={e => setTitle(e.target.value)}
       />
     </AddBtn>

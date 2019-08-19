@@ -9,7 +9,7 @@ import GoogleLogin, {
   GoogleLoginResponseOffline
 } from 'react-google-login';
 
-import { FullPageLoading } from '../components';
+import FullPageLoading from '../components/FullPageLoading';
 
 const Login: FC = () => {
   const client = useApolloClient();

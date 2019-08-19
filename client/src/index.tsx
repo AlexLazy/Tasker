@@ -13,7 +13,7 @@ import gql from 'graphql-tag';
 
 import Snackbar from '@material-ui/core/Snackbar';
 
-import { FullPageLoading } from './components';
+import FullPageLoading from './components/FullPageLoading';
 import Pages from './pages';
 import Login from './pages/Login';
 

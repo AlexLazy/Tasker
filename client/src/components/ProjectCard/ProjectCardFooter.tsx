@@ -7,13 +7,16 @@ import { green } from '@material-ui/core/colors';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
+import ProjectCardUserAdd from './ProjectCardUserAdd';
+
+import { IUser } from './ProjectCard';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,12 +51,14 @@ export interface ProjectCardFooterProps {
         >
       | undefined
   ): Promise<void | ExecutionResult<any>>;
+  inProjectUsers: IUser[];
 }
 
 const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
   id,
   mutateDeleteProject,
-  loadingDeleteProject
+  loadingDeleteProject,
+  inProjectUsers
 }) => {
   const classes = useStyles();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -74,9 +79,7 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
   return (
     <Fragment>
       <CardActions disableSpacing>
-        <IconButton aria-label='Добавить пользователя к проекту'>
-          <PersonAddIcon />
-        </IconButton>
+        <ProjectCardUserAdd id={id} inProjectUsers={inProjectUsers} />
         <IconButton aria-label='Удалить пользователя с проекта'>
           <PersonAddDisabledIcon />
         </IconButton>
