@@ -6,7 +6,8 @@ scalar DateTime
 scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
 
 type Mutation @middleware(checks: ["auth:api", "admin"]) {
-    createUser(email: String!): User @create
+    createUser(email: String! @rules(apply: ["required", "email"])): User
+        @create
     deleteUser(id: ID!): User @delete
 
     createProject(title: String!): Project
@@ -52,7 +53,7 @@ extend type Mutation {
 }
 
 type Query @middleware(checks: ["auth:api"]) {
-    users: [User!]! @all
+    users: [User!]!
     me: User @auth
 
     project(id: ID @eq): Project @find

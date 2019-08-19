@@ -48,6 +48,15 @@ const Header: FC = () => {
     localStorage.clear();
   };
 
+  const handleCreateUser = () => {
+    setAnchorEl(null);
+    client.writeData({
+      data: {
+        isNewAccountOpen: true
+      }
+    });
+  };
+
   return (
     <AppBar position='static'>
       <Toolbar>
@@ -86,6 +95,7 @@ const Header: FC = () => {
           <MenuItem component={Link} to='/tasks' onClick={handleClose}>
             Задачи
           </MenuItem>
+          <MenuItem onClick={handleCreateUser}>Добавить пользователя</MenuItem>
           <MenuItem onClick={handleLogout}>
             Выйти <ExitToApp />
           </MenuItem>

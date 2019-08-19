@@ -4,6 +4,7 @@ export const typeDefs = gql`
   extend type Query {
     me: User!
     isLoggedIn: Boolean!
+    isNewAccountOpen: Boolean!
     error: Error!
   }
 

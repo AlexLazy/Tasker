@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
           $table->string('google_id')->nullable();
           $table->string('email')->unique();
           $table->string('avatar')->nullable();
-          $table->enum('role', ['ADMIN', 'ROCKSTAR'])->default('ADMIN');
+          $table->enum('role', ['ADMIN', 'ROCKSTAR'])->default('ROCKSTAR');
           $table->string('api_token')->unique()->nullable();
           $table->timestamps();
         });

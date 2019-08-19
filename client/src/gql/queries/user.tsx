@@ -1,5 +1,11 @@
 import gql from 'graphql-tag';
 
+export const IS_NEW_ACCOUNT_OPEN = gql`
+  query IsNewAccOuntOpen {
+    isNewAccountOpen @client
+  }
+`;
+
 export const IS_LOGGED_IN = gql`
   query IsUserLoggedIn {
     isLoggedIn @client

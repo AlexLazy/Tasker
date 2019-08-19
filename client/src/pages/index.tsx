@@ -11,6 +11,7 @@ import FolderIcon from '@material-ui/icons/Folder';
 import FolderSharedIcon from '@material-ui/icons/FolderShared';
 
 import Header from '../components/Header';
+import AddNewAccount from '../components/AddNewAccount';
 
 import Page404 from './404';
 import Projects from './Projects';
@@ -61,6 +62,7 @@ const Pages: FC = () => {
             icon={<FolderSharedIcon />}
           />
         </BottomNavigation>
+        <AddNewAccount />
       </Fragment>
     </CssBaseline>
   );

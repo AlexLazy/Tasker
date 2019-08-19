@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 
-import { useApolloClient } from '@apollo/react-hooks';
-import { useMutation } from '@apollo/react-hooks';
+import { useApolloClient, useMutation } from '@apollo/react-hooks';
 import { LOGIN } from '../gql/mutations';
 
 import GoogleLogin, {

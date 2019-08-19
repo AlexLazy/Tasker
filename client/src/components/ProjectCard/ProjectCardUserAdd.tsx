@@ -91,6 +91,15 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
     setOpen(false);
   };
 
+  const handleCreateUser = () => {
+    client.writeData({
+      data: {
+        isNewAccountOpen: true
+      }
+    });
+    setOpen(false);
+  };
+
   return (
     <Fragment>
       <CircleLoading size={24} isLoading={isLoading}>
@@ -130,7 +139,7 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
                 </ListItem>
               </CircleLoading>
             ))}
-          <ListItem button>
+          <ListItem button onClick={handleCreateUser}>
             <ListItemAvatar>
               <Avatar>
                 <AddIcon />

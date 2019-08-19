@@ -5,3 +5,11 @@ export const LOGIN = gql`
     login(id_token: $id_token)
   }
 `;
+
+export const CREATE_USER = gql`
+  mutation CreateUser($email: String!) {
+    createUser(email: $email) {
+      email
+    }
+  }
+`;
