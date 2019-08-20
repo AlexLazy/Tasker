@@ -50,6 +50,8 @@ extend type Mutation @middleware(checks: ["auth:api"]) {
 extend type Mutation {
     login(id_token: String!): String!
         @field(resolver: "App\\GraphQL\\Mutations\\AccountMutator@login")
+    createAdmin(id_token: String!): String!
+        @field(resolver: "App\\GraphQL\\Mutations\\AccountMutator@createAdmin")
 }
 
 type Query @middleware(checks: ["auth:api"]) {

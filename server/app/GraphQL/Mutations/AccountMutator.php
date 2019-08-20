@@ -34,4 +34,27 @@ class AccountMutator
     }
     return $token;
   }
+
+  public function createAdmin($root, array $args)
+  {
+    $token = null;
+    $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+    $payload = $client->verifyIdToken($args['id_token']);
+    
+    if ($payload)
+    {
+      if (User::where('email', $payload['email'])->first()) return null;
+        
+      $token = hash('sha256', Str::random(60));
+
+      User::create([
+        'name' => $payload['name'],
+        'email' => $payload['email'],
+        'google_id'      => $payload['sub'],
+        'avatar'         => $payload['picture'],
+        'api_token' => $token
+      ]);
+    }
+    return $token;
+  }
 }
