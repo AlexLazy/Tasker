@@ -1,4 +1,4 @@
-import React, { FC, ReactChild } from 'react';
+import React, { FC, ReactChild, HTMLAttributes } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
@@ -16,7 +16,7 @@ const useStyles = makeStyles({
   })
 });
 
-interface CircleLoadingProps {
+interface CircleLoadingProps extends HTMLAttributes<HTMLDivElement> {
   size: number;
   isLoading: boolean;
   children: ReactChild;
@@ -25,15 +25,18 @@ interface CircleLoadingProps {
 const CircleLoading: FC<CircleLoadingProps> = ({
   size,
   isLoading,
-  children
+  children,
+  ...props
 }) => {
   const classes = useStyles(size);
   return (
-    <div className={classes.root}>
-      {children}
-      {isLoading && (
-        <CircularProgress className={classes.progress} size={size} />
-      )}
+    <div {...props}>
+      <div className={classes.root}>
+        {children}
+        {isLoading && (
+          <CircularProgress className={classes.progress} size={size} />
+        )}
+      </div>
     </div>
   );
 };

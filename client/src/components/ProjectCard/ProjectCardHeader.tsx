@@ -10,8 +10,12 @@ import Chip from '@material-ui/core/Chip';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      flexWrap: 'wrap'
+    },
     usersWrapper: {
-      display: 'flex'
+      display: 'flex',
+      marginBottom: theme.spacing(2)
     },
     priceWrapper: {
       display: 'flex',
@@ -51,6 +55,7 @@ const ProjectCardHeader: FC<ProjectCardHeaderProps> = ({
 
   return (
     <CardHeader
+      className={classes.root}
       avatar={
         <div className={classes.usersWrapper}>
           {users.map(({ id, name, email, avatar }) => (
@@ -72,7 +77,6 @@ const ProjectCardHeader: FC<ProjectCardHeaderProps> = ({
       action={
         <div className={classes.priceWrapper}>
           <Chip
-            className={classes.price}
             size='small'
             label={price_total}
             avatar={

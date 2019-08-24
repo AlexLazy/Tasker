@@ -1,5 +1,6 @@
 import React, { FC, useState, ChangeEvent } from 'react';
 
+import { REQUEST_ERROR, COMPLETE_ERROR } from '../constants';
 import { useApolloClient, useMutation } from '@apollo/react-hooks';
 import { LOGIN, CREATE_ADMIN } from '../gql/mutations';
 
@@ -48,15 +49,7 @@ const Login: FC = () => {
       }
     },
     onError(error) {
-      client.writeData({
-        data: {
-          error: {
-            __typename: 'error',
-            text: error.message,
-            open: true
-          }
-        }
-      });
+      client.writeData(REQUEST_ERROR(error));
     }
   });
 
@@ -66,30 +59,14 @@ const Login: FC = () => {
   }>(CREATE_ADMIN, {
     onCompleted({ createAdmin }) {
       if (!createAdmin) {
-        client.writeData({
-          data: {
-            error: {
-              __typename: 'error',
-              text: 'Произошла ошибка.',
-              open: true
-            }
-          }
-        });
+        client.writeData(COMPLETE_ERROR);
       } else {
         localStorage.setItem('token', 'Bearer ' + createAdmin);
         document.location.reload();
       }
     },
     onError(error) {
-      client.writeData({
-        data: {
-          error: {
-            __typename: 'error',
-            text: error.message,
-            open: true
-          }
-        }
-      });
+      client.writeData(REQUEST_ERROR(error));
     }
   });
 

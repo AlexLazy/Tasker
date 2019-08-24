@@ -12,39 +12,29 @@ type Mutation @middleware(checks: ["auth:api", "admin"]) {
 
     createProject(title: String!): Project
         @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@create")
-    updateProject(id: ID!, title: String!): Project @update
     deleteProject(id: ID!): Project @delete
 
-    createTask(
-        project_id: Int!
-        content: String!
-        price_total: Int
-        price: Int
-        status: TaskStatus
-    ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@create")
-    updateTask(
-        id: ID!
-        project_id: Int!
-        title: String!
-        content: String!
-        price_total: Int
-        price: Int
-        status: TaskStatus!
-    ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@update")
-    deleteTask(id: ID!): Task @delete
-
-    addUserToProject(project_id: Int!, user_id: Int!): Project
+    addUserToProject(project_id: ID!, user_id: ID!): Project
         @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@addUser")
-    removeUserFromProject(project_id: Int!, user_id: Int!): Project
+    removeUserFromProject(project_id: ID!, user_id: ID!): Project
         @field(resolver: "App\\GraphQL\\Mutations\\ProjectMutator@removeUser")
 }
 
 extend type Mutation @middleware(checks: ["auth:api"]) {
-    createComment(task_id: Int!, content: String!): Comment
-        @field(resolver: "App\\GraphQL\\Mutations\\CommentMutator@create")
-    updateComment(id: ID!, content: String!): Comment
-        @field(resolver: "App\\GraphQL\\Mutations\\CommentMutator@update")
-    deleteComment(id: ID!): Comment @delete
+    createTask(
+        project_id: ID!
+        content: String!
+        price_total: String
+        price: String
+    ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@create")
+    updateTask(
+        id: ID!
+        content: String
+        price_total: String
+        price: String
+        status: TaskStatus
+    ): Task @field(resolver: "App\\GraphQL\\Mutations\\TaskMutator@update")
+    deleteTask(id: ID!): Task @delete
 }
 
 extend type Mutation {
@@ -59,7 +49,6 @@ type Query @middleware(checks: ["auth:api"]) {
     me: User @auth
 
     project(id: ID @eq): Project @find
-    # projects: [Project!]! @all
 
     task(id: ID @eq): Task @find
     tasks: [Task!]! @paginate
@@ -82,10 +71,10 @@ type User {
     email: String!
     avatar: String!
     role: UserRole!
-    created_at: DateTime!
-    updated_at: DateTime!
     own_projects: [Project!]! @hasMany(relation: "own_projects")
     projects: [Project!]! @belongsToMany
+    created_at: DateTime!
+    updated_at: DateTime!
 }
 
 type Project {
@@ -94,22 +83,18 @@ type Project {
     author: User @belongsTo
     tasks: [Task!]! @hasMany
     users: [User!]! @belongsToMany
+    created_at: DateTime!
+    updated_at: DateTime!
 }
 
 type Task {
     id: ID!
     content: String!
-    price_total: Int
-    price: Int
+    price_total: String
+    price: String
     status: TaskStatus
     project: Project @belongsTo
-    comments: [Comment!]! @hasMany
     author: User @belongsTo
-}
-
-type Comment {
-    id: ID!
-    task_id: Int!
-    content: String!
-    author: User @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
 }

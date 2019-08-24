@@ -18,8 +18,8 @@ class CreateTasksTable extends Migration
             $table->unsignedInteger('user_id');
             $table->bigInteger('project_id')->unsigned();
             $table->text('content');
-            $table->integer('price_total')->nullable();
-            $table->integer('price')->nullable();
+            $table->string('price_total')->default('0');
+            $table->string('price')->default('0');
             $table->enum('status', ['OPEN', 'CHECKS', 'CLOSED'])->default('OPEN');
             $table->timestamps();
         });

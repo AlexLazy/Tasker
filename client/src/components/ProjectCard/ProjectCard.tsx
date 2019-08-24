@@ -1,5 +1,7 @@
 import React, { FC, useState } from 'react';
 
+import { REQUEST_ERROR } from '../../constants';
+
 import { Link } from 'react-router-dom';
 
 import { useApolloClient, useMutation, useQuery } from '@apollo/react-hooks';
@@ -72,15 +74,7 @@ const ProjectCard: FC<ProjectCardProps> = ({
           });
       },
       onError(error) {
-        client.writeData({
-          data: {
-            error: {
-              __typename: 'error',
-              text: error.message,
-              open: true
-            }
-          }
-        });
+        client.writeData(REQUEST_ERROR(error));
       }
     }
   );

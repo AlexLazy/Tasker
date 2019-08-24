@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react';
 
+import { REQUEST_ERROR } from '../../constants';
 import { useApolloClient, useMutation, useQuery } from '@apollo/react-hooks';
 import { CREATE_USER } from '../../gql/mutations';
 import { IS_NEW_ACCOUNT_OPEN } from '../../gql/queries';
@@ -35,15 +36,7 @@ const AddNewAccount: FC = () => {
       });
     },
     onError(error) {
-      client.writeData({
-        data: {
-          error: {
-            __typename: 'error',
-            text: error.message,
-            open: true
-          }
-        }
-      });
+      client.writeData(REQUEST_ERROR(error));
     }
   });
 
@@ -78,7 +71,7 @@ const AddNewAccount: FC = () => {
       </DialogTitle>
       <DialogContent>
         <TextField
-          label='Название проекта'
+          label='Email'
           type='email'
           fullWidth
           onChange={e => setEmail(e.target.value)}

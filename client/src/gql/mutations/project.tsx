@@ -17,7 +17,7 @@ export const ADD_PROJECT = gql`
 `;
 
 export const ADD_USER_TO_PROJECT = gql`
-  mutation AddUserToProject($project_id: Int!, $user_id: Int!) {
+  mutation AddUserToProject($project_id: ID!, $user_id: ID!) {
     addUserToProject(project_id: $project_id, user_id: $user_id) {
       users {
         id
@@ -31,7 +31,7 @@ export const ADD_USER_TO_PROJECT = gql`
 `;
 
 export const REMOVE_USER_TO_PROJECT = gql`
-  mutation RemoveUserToProject($project_id: Int!, $user_id: Int!) {
+  mutation RemoveUserToProject($project_id: ID!, $user_id: ID!) {
     removeUserFromProject(project_id: $project_id, user_id: $user_id) {
       title
     }

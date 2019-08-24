@@ -1305,6 +1305,13 @@
   dependencies:
     "@types/jest-diff" "*"
 
+"@types/jquery@*":
+  version "3.3.31"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.31.tgz#27c706e4bf488474e1cb54a71d8303f37c93451b"
+  integrity sha512-Lz4BAJihoFw5nRzKvg4nawXPzutkv7wmfQ5121avptaSIXlDNJCUuxZxX/G+9EVidZGuO0UBlk+YjKbwRKJigg==
+  dependencies:
+    "@types/sizzle" "*"
+
 "@types/node@12.6.8":
   version "12.6.8"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.8.tgz#e469b4bf9d1c9832aee4907ba8a051494357c12c"
@@ -1372,10 +1379,22 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
+"@types/sizzle@*":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
+  integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
+
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
+
+"@types/tinymce@^4.5.22":
+  version "4.5.22"
+  resolved "https://registry.yarnpkg.com/@types/tinymce/-/tinymce-4.5.22.tgz#134827d2d6cfd7c7ed14d7ee1bfbfe4d66f7eb84"
+  integrity sha512-qmvmXUYgkdQ6jAbsRSQclfttq3nk8mbJYi6xthyhF2J9GFgzbNPcBntsrOr9CpnY6uE1Z8L0NBB1eA7TA+5GKA==
+  dependencies:
+    "@types/jquery" "*"
 
 "@types/yargs@^12.0.2", "@types/yargs@^12.0.9":
   version "12.0.12"
@@ -9589,6 +9608,11 @@ tiny-warning@^1.0.0, tiny-warning@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
   integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
+
+tinymce@^5.0.14:
+  version "5.0.14"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-5.0.14.tgz#6ec70a5ec6e95819ba9f711a0ec11f8412805c00"
+  integrity sha512-dQai8m80HgcfZ7e+F4YJBr69+mQJSDNpZYJTAnGlGTBc5fKfu6R6G2tq/G9It//ylZ7H/e7yvBQ+WyZBPQCnkQ==
 
 tmp@^0.0.33:
   version "0.0.33"

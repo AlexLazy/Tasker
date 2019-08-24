@@ -10,8 +10,9 @@ class TaskMutator
 {
   public function create($root, array $args, GraphQLContext $context)
   {
-    $project = Project::where('id', '=', $args['project_id']);
-    if (!$project->exists() || $project->pluck('user_id')[0] != $context->user->id) return null;
+    $project = Project::find($args['project_id']);
+
+    if (!$project || !$project->users->where('id', $context->user->id)->count()) return null;
     
     $task = new Task;
     $task->user_id = $context->user->id;
@@ -23,10 +24,10 @@ class TaskMutator
 
   public function update($root, array $args, GraphQLContext $context)
   {
-    $project = Project::where('id', '=', $args['project_id']);
-    if (!$project->exists() || $project->pluck('user_id')[0] != $context->user->id) return null;
-
     $task = Task::find($args['id']);
+    $project = Project::find($task->project_id);
+    if (!$project || !$project->users->where('id', $context->user->id)->count()) return null;
+
     $task->fill($args);
     $task->save();
 

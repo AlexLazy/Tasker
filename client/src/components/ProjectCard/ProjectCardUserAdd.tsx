@@ -1,5 +1,6 @@
 import React, { FC, Fragment, useState } from 'react';
 
+import { REQUEST_ERROR, COMPLETE_ERROR } from '../../constants';
 import { useApolloClient, useMutation } from '@apollo/react-hooks';
 import { GET_USERS, GET_USER_PROJECTS } from '../../gql/queries';
 import { ADD_USER_TO_PROJECT } from '../../gql/mutations';
@@ -35,27 +36,10 @@ const ProjectCardUserAdd: FC<ProjectCardUserAddProps> = ({
       }
     ],
     onCompleted({ addUserToProject }) {
-      !addUserToProject &&
-        client.writeData({
-          data: {
-            error: {
-              __typename: 'error',
-              text: 'Произошла ошибка',
-              open: true
-            }
-          }
-        });
+      !addUserToProject && client.writeData(COMPLETE_ERROR);
     },
     onError(error) {
-      client.writeData({
-        data: {
-          error: {
-            __typename: 'error',
-            text: error.message,
-            open: true
-          }
-        }
-      });
+      client.writeData(REQUEST_ERROR(error));
     }
   });
 

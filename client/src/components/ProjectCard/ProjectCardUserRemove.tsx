@@ -1,5 +1,6 @@
 import React, { FC, Fragment, useState } from 'react';
 
+import { REQUEST_ERROR, COMPLETE_ERROR } from '../../constants';
 import { useApolloClient, useMutation } from '@apollo/react-hooks';
 import { GET_USER_PROJECTS, GET_PROJECT_AUTHOR } from '../../gql/queries';
 import { REMOVE_USER_TO_PROJECT } from '../../gql/mutations';
@@ -42,27 +43,10 @@ const ProjectCardUserRemove: FC<ProjectCardUserRemoveProps> = ({
       }
     ],
     onCompleted({ removeUserFromProject }) {
-      !removeUserFromProject &&
-        client.writeData({
-          data: {
-            error: {
-              __typename: 'error',
-              text: 'Произошла ошибка',
-              open: true
-            }
-          }
-        });
+      !removeUserFromProject && client.writeData(COMPLETE_ERROR);
     },
     onError(error) {
-      client.writeData({
-        data: {
-          error: {
-            __typename: 'error',
-            text: error.message,
-            open: true
-          }
-        }
-      });
+      client.writeData(REQUEST_ERROR(error));
     }
   });
 

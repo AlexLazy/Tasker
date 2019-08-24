@@ -1,6 +1,11 @@
-import React, { FC, Fragment, useState, ReactChild } from 'react';
-
-import { ExecutionResult, MutationFunctionOptions } from '@apollo/react-common';
+import React, {
+  ReactFragment,
+  Fragment,
+  useState,
+  ReactChild,
+  forwardRef,
+  useImperativeHandle
+} from 'react';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
@@ -43,70 +48,61 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface AddBtn {
   title: string;
-  reguest(
-    options?: MutationFunctionOptions<any, any> | undefined
-  ): Promise<void | ExecutionResult<any>>;
+  onSave(): void;
   loading: boolean;
-  variables?: { [key: string]: any };
   disabled?: boolean;
   children?: ReactChild;
 }
 
-const AddBtn: FC<AddBtn> = ({
-  title,
-  reguest,
-  loading,
-  variables,
-  disabled = false,
-  children
-}) => {
-  const classes = useStyles();
-  const [open, setOpen] = useState(false);
+const AddBtn = forwardRef<ReactFragment & { success(): void }, AddBtn>(
+  ({ title, onSave, loading, disabled = false, children }, ref) => {
+    const classes = useStyles();
+    const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
-  const handleDeleteProject = async () => {
-    variables ? await reguest({ variables }) : await reguest();
-    !loading && setOpen(false);
-  };
+    useImperativeHandle(ref, () => ({
+      success: () => setOpen(false)
+    }));
 
-  return (
-    <Fragment>
-      <Tooltip title={title} placement='left'>
-        <Fab
-          color='secondary'
-          aria-label={title}
-          className={classes.btn}
-          onClick={handleOpen}
+    return (
+      <Fragment>
+        <Tooltip title={title} placement='left'>
+          <Fab
+            color='secondary'
+            aria-label={title}
+            className={classes.btn}
+            onClick={handleOpen}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          fullWidth
+          aria-labelledby='form-dialog-title'
         >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-        aria-labelledby='form-dialog-title'
-      >
-        <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
-        <DialogContent>{children}</DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color='primary'>
-            Отмена
-          </Button>
-          <CircleLoading size={24} isLoading={loading}>
-            <Button
-              onClick={handleDeleteProject}
-              color='primary'
-              disabled={disabled || loading}
-            >
-              Подтвердить
+          <DialogTitle id='form-dialog-title'>{title}</DialogTitle>
+          <DialogContent>{children}</DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color='primary'>
+              Отмена
             </Button>
-          </CircleLoading>
-        </DialogActions>
-      </Dialog>
-    </Fragment>
-  );
-};
+            <CircleLoading size={24} isLoading={loading}>
+              <Button
+                onClick={onSave}
+                color='primary'
+                disabled={disabled || loading}
+              >
+                Подтвердить
+              </Button>
+            </CircleLoading>
+          </DialogActions>
+        </Dialog>
+      </Fragment>
+    );
+  }
+);
 export default AddBtn;
