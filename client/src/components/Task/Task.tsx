@@ -2,71 +2,27 @@ import React, { FC, useState, forwardRef, useEffect, ChangeEvent } from 'react';
 
 import { REQUEST_ERROR, COMPLETE_ERROR } from '../../constants';
 import { useApolloClient, useMutation } from '@apollo/react-hooks';
-import { GET_PROJECT } from '../../gql/queries';
-import { ADD_TASK, UPDATE_TASK } from '../../gql/mutations';
+import {
+  GET_USER_PROJECTS,
+  GET_PROJECT,
+  GET_USER_TASKS
+} from '../../gql/queries';
+import { ADD_TASK, UPDATE_TASK, DELETE_TASK } from '../../gql/mutations';
 
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
 import { TransitionProps } from '@material-ui/core/transitions';
 import Slide from '@material-ui/core/Slide';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
 import Dialog from '@material-ui/core/Dialog';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
 import Container from '@material-ui/core/Container';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
 
 import Editor from '../Editor';
-import CircleLoading from '../CircleLoading';
+import TaskHeader from './TaskHeader';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    header: {
-      marginBottom: theme.spacing(3)
-    },
-    container: {
-      height: '100%'
-    },
-    label: {
-      color: '#fff !important'
-    },
-    input: {
-      marginLeft: theme.spacing(2),
-      '& input, & label': {
-        color: '#fff !important'
-      },
-      '& .MuiInput-underline:before, & .MuiInput-underline:after': {
-        borderBottomColor: '#fff !important'
-      }
-    },
-    selectBorder: {
-      '&::before, &::after': {
-        borderBottomColor: '#fff !important'
-      }
-    },
-    select: {
-      color: '#fff'
-    },
-    icon: {
-      fill: '#fff'
-    },
-    btn: {
-      marginLeft: theme.spacing(4)
-    },
-    btnGreen: {
-      color: green[500]
-    },
-    close: {
-      marginRight: 'auto'
-    }
-  })
-);
+const useStyles = makeStyles({
+  container: {
+    height: '100%'
+  }
+});
 
 const Transition = forwardRef<unknown, TransitionProps>((props, ref) => (
   <Slide direction='up' ref={ref} {...props} />
@@ -75,14 +31,14 @@ const Transition = forwardRef<unknown, TransitionProps>((props, ref) => (
 export interface Task {
   id?: number;
   content: string;
-  price_total: number;
-  price: number;
+  price_total: string;
+  price: string;
   status: 'OPEN' | 'CHECKS' | 'CLOSED';
   updated_at?: Date;
 }
 
 interface TaskProps {
-  project_id: number;
+  project_id?: number;
   task: Task | null;
   open: boolean;
   isCreate: boolean;
@@ -96,6 +52,9 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
       {
         query: GET_PROJECT,
         variables: { id: project_id }
+      },
+      {
+        query: GET_USER_TASKS
       }
     ],
     onCompleted({ createTask }) {
@@ -119,8 +78,10 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
   const [mutateUpdateTask] = useMutation(UPDATE_TASK, {
     refetchQueries: [
       {
-        query: GET_PROJECT,
-        variables: { id: project_id }
+        query: GET_USER_PROJECTS
+      },
+      {
+        query: GET_USER_TASKS
       }
     ],
     onCompleted({ updateTask }) {
@@ -133,15 +94,34 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
     }
   });
 
+  const deleteQuery = project_id
+    ? { query: GET_PROJECT, variables: { id: project_id } }
+    : { query: GET_USER_PROJECTS };
+  const [mutateDeleteTask] = useMutation(DELETE_TASK, {
+    refetchQueries: [
+      deleteQuery,
+      {
+        query: GET_USER_TASKS
+      }
+    ],
+    onCompleted({ deleteTask }) {
+      !deleteTask && client.writeData(COMPLETE_ERROR);
+    },
+    onError(error) {
+      client.writeData(REQUEST_ERROR(error));
+    }
+  });
+
   const classes = useStyles();
   const [height, setHeight] = useState<number | undefined>();
   const [disabled, setDisabled] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [changeLoading, setChangeLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [stateTask, setStateTask] = useState<Task>({
     id: undefined,
     content: '',
-    price_total: 0,
-    price: 0,
+    price_total: '0',
+    price: '0',
     status: 'OPEN'
   });
   const { id, content, price_total, price, status } = stateTask;
@@ -149,15 +129,14 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
     localStorage.getItem('task') &&
     JSON.parse(localStorage.getItem('task') || '');
 
-  const fillTask = (task: Task) => {
+  const fillTask = (task: Task) =>
     setStateTask({
       id: task.id || undefined,
       content: task.content || '',
-      price_total: task.price_total || 0,
-      price: task.price || 0,
+      price_total: task.price_total || '0',
+      price: task.price || '0',
       status: task.status || 'OPEN'
     });
-  };
 
   const handleTaskField = (name: string, value: string | number) => {
     isCreate &&
@@ -181,13 +160,14 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
     } else {
       task && fillTask(task);
     }
+
     return () => {
       setDisabled(true);
       setStateTask({
         id: undefined,
         content: '',
-        price_total: 0,
-        price: 0,
+        price_total: '0',
+        price: '0',
         status: 'OPEN'
       });
     };
@@ -197,17 +177,18 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
     handleTaskField('content', content);
   };
 
-  const handlePriceTotal = (e: ChangeEvent<HTMLInputElement>) =>
-    handleTaskField('price_total', parseInt(e.target.value));
+  const handlePriceTotal = (e: ChangeEvent<HTMLInputElement>) => {
+    handleTaskField('price_total', e.target.value);
+  };
   const handlePrice = (e: ChangeEvent<HTMLInputElement>) =>
-    handleTaskField('price', parseInt(e.target.value));
+    handleTaskField('price', e.target.value);
 
   const handleStatus = (
     e: ChangeEvent<{ name?: string | undefined; value: unknown }>
   ) => handleTaskField('status', '' + e.target.value);
 
   const handleSave = async () => {
-    setLoading(true);
+    setChangeLoading(true);
     isCreate
       ? await mutateAddTask({
           variables: { project_id, content, price_total, price }
@@ -215,7 +196,16 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
       : await mutateUpdateTask({
           variables: { id, content, price_total, price, status }
         });
-    setLoading(false);
+    setChangeLoading(false);
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    await mutateDeleteTask({
+      variables: { id }
+    });
+    setDeleteLoading(false);
     onClose();
   };
 
@@ -227,90 +217,22 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
       TransitionComponent={Transition}
       disableEnforceFocus={true}
     >
-      <AppBar className={classes.header} position='static'>
-        <Toolbar>
-          <IconButton
-            className={classes.close}
-            edge='start'
-            color='inherit'
-            onClick={onClose}
-            aria-label='close'
-          >
-            <CloseIcon />
-          </IconButton>
-          <FormControl>
-            <InputLabel className={classes.label} htmlFor='task-status'>
-              Статус
-            </InputLabel>
-            <Select
-              className={classes.selectBorder}
-              classes={{
-                select: classes.select,
-                icon: classes.icon
-              }}
-              value={status}
-              onChange={handleStatus}
-              inputProps={{
-                name: 'status',
-                id: 'task-status'
-              }}
-              disabled={disabled || isCreate}
-            >
-              <MenuItem value='OPEN'>Открыта</MenuItem>
-              <MenuItem value='CHECKS'>На проверке</MenuItem>
-              <MenuItem value='CLOSED'>Закрыта</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            classes={{
-              root: classes.input
-            }}
-            label='Стоимость задачи'
-            color='#fff'
-            value={price_total}
-            onChange={handlePriceTotal}
-            disabled={disabled}
-          />
-          <TextField
-            classes={{
-              root: classes.input
-            }}
-            label='Стоимость работы'
-            color='#fff'
-            value={price}
-            onChange={handlePrice}
-            disabled={disabled}
-          />
-          {disabled ? (
-            <Button
-              variant='outlined'
-              className={classes.btn}
-              color='inherit'
-              onClick={() => setDisabled(false)}
-            >
-              Редактировать
-            </Button>
-          ) : (
-            <CircleLoading
-              className={classes.btn}
-              size={24}
-              isLoading={loading}
-            >
-              <Button
-                classes={{
-                  outlined: classes.btnGreen
-                }}
-                variant='outlined'
-                color='inherit'
-                onClick={handleSave}
-                disabled={loading}
-              >
-                Сохранить
-              </Button>
-            </CircleLoading>
-          )}
-        </Toolbar>
-      </AppBar>
+      <TaskHeader
+        status={status}
+        price_total={price_total}
+        price={price}
+        changeLoading={changeLoading}
+        deleteLoading={deleteLoading}
+        disabled={disabled}
+        isCreate={isCreate}
+        onStatus={handleStatus}
+        onPriceTotal={handlePriceTotal}
+        onPrice={handlePrice}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        onEnabled={() => setDisabled(false)}
+        onClose={onClose}
+      />
       <Container
         className={classes.container}
         ref={(node: HTMLDivElement) => {

@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { Component } from 'react';
 
 import tinymce from 'tinymce';
 import 'tinymce/themes/silver';
@@ -20,39 +20,45 @@ interface EditorProps {
   onEditorChange(congent: string): void;
 }
 
-const Editor: FC<EditorProps> = ({
-  content,
-  disabled = false,
-  height,
-  onEditorChange
-}) => {
-  const [editor, setEditor] = useState<tinymce.Editor | null>(null);
+interface State {
+  editor: tinymce.Editor | null;
+}
 
-  useEffect(() => {
-    !editor &&
-      tinymce.init({
-        selector: '#editor',
-        plugins:
-          'image table autolink link, charmap emoticons media hr lists advlist',
-        toolbar:
-          'undo redo | styleselect | bold italic | link image | numlist bullist | hr forecolor backcolor',
-        height: height,
-        setup: editor => {
-          setEditor(editor);
-          editor.on('keyup change', () => {
-            onEditorChange(editor.getContent());
-          });
-        }
-      });
+export default class Editor extends Component<EditorProps, State> {
+  state: State = {
+    editor: null
+  };
 
-    return () => {
-      editor && editor.destroy();
-    };
-  }, [editor]);
+  componentDidMount() {
+    tinymce.init({
+      selector: '#editor',
+      plugins:
+        'image table autolink link, charmap emoticons media hr lists advlist',
+      toolbar:
+        'undo redo | styleselect | bold italic | link image | numlist bullist | hr forecolor backcolor',
+      height: this.props.height,
+      setup: editor => {
+        this.setState({
+          editor
+        });
+        editor.on('keyup change setcontent', () => {
+          this.props.onEditorChange(editor.getContent());
+        });
+      }
+    });
+  }
 
-  editor && (disabled ? editor.setMode('readonly') : editor.setMode('design'));
+  componentWillUnmount() {
+    if (this.state.editor !== null) {
+      this.state.editor.destroy();
+    }
+  }
 
-  return <textarea id='editor' defaultValue={content} />;
-};
-
-export default Editor;
+  render() {
+    this.state.editor &&
+      (this.props.disabled
+        ? this.state.editor.setMode('readonly')
+        : this.state.editor.setMode('design'));
+    return <textarea id='editor' defaultValue={this.props.content} />;
+  }
+}

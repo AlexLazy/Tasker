@@ -3,10 +3,9 @@ import React, { FC } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
 import CardHeader from '@material-ui/core/CardHeader';
-import CakeIcon from '@material-ui/icons/Cake';
-import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
 import Tooltip from '@material-ui/core/Tooltip';
-import Chip from '@material-ui/core/Chip';
+
+import ProjectCardPrice from './ProjectCardPrice';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -17,18 +16,10 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       marginBottom: theme.spacing(2)
     },
-    priceWrapper: {
-      display: 'flex',
-      marginTop: theme.spacing(1),
-      marginRight: theme.spacing(1)
-    },
     avatar: {
       width: 20,
       height: 20,
       transform: 'scale(1.5)'
-    },
-    price: {
-      marginLeft: theme.spacing(1)
     }
   })
 );
@@ -41,8 +32,8 @@ export interface ProjectCardHeaderProps {
     avatar: string;
   }[];
   role: 'ADMIN' | 'ROCKSTAR';
-  price: number;
-  price_total: number;
+  price: string;
+  price_total: string;
 }
 
 const ProjectCardHeader: FC<ProjectCardHeaderProps> = ({
@@ -75,28 +66,7 @@ const ProjectCardHeader: FC<ProjectCardHeaderProps> = ({
         </div>
       }
       action={
-        <div className={classes.priceWrapper}>
-          <Chip
-            size='small'
-            label={price_total}
-            avatar={
-              <Avatar>
-                <BusinessCenterIcon />
-              </Avatar>
-            }
-          />
-          <Chip
-            className={classes.price}
-            size='small'
-            color='primary'
-            label={role === 'ADMIN' ? price_total - price : price}
-            avatar={
-              <Avatar>
-                <CakeIcon />
-              </Avatar>
-            }
-          />
-        </div>
+        <ProjectCardPrice role={role} price_total={price_total} price={price} />
       }
     />
   );

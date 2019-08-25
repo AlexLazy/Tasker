@@ -36,8 +36,8 @@ export interface ProjectCardProps {
   title: string;
   users: IUser[];
   tasks: {
-    price: number;
-    price_total: number;
+    price: string;
+    price_total: string;
   }[];
 }
 
@@ -80,8 +80,8 @@ const ProjectCard: FC<ProjectCardProps> = ({
   );
   const { price, price_total } = tasks.reduce(
     (prev, cur) => ({
-      price: prev.price + cur.price,
-      price_total: prev.price_total + cur.price_total
+      price: prev.price + parseInt(cur.price),
+      price_total: prev.price_total + parseInt(cur.price_total)
     }),
     {
       price: 0,
@@ -98,8 +98,8 @@ const ProjectCard: FC<ProjectCardProps> = ({
       <ProjectCardHeader
         users={inProjectUsers}
         role={role}
-        price={price}
-        price_total={price_total}
+        price={price.toString()}
+        price_total={price_total.toString()}
       />
       <Link className={classes.link} to={`/projects/${id}`}>
         <CardActionArea>

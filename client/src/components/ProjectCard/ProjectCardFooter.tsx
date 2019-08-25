@@ -2,8 +2,7 @@ import React, { FC, Fragment, useState } from 'react';
 
 import { ExecutionResult, MutationFunctionOptions } from '@apollo/react-common';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/core/styles';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -11,32 +10,18 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 import ProjectCardUserAdd from './ProjectCardUserAdd';
 import ProjectCardUserRemove from './ProjectCardUserRemove';
+import CircleLoading from '../CircleLoading';
 
 import { IUser } from './ProjectCard';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    deleteBtn: {
-      marginLeft: 'auto'
-    },
-    wrapper: {
-      margin: theme.spacing(1),
-      position: 'relative'
-    },
-    progressBtn: {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      marginTop: -12,
-      marginLeft: -12,
-      color: green[500]
-    }
-  })
-);
+const useStyles = makeStyles({
+  deleteBtn: {
+    marginLeft: 'auto'
+  }
+});
 
 export interface ProjectCardFooterProps {
   id: number;
@@ -100,7 +85,7 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
           <Button onClick={handleDeleteProjectClose} color='primary' autoFocus>
             Нет
           </Button>
-          <div className={classes.wrapper}>
+          <CircleLoading size={24} isLoading={loadingDeleteProject}>
             <Button
               onClick={handleDeleteProject}
               color='primary'
@@ -108,10 +93,7 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
             >
               Да
             </Button>
-            {loadingDeleteProject && (
-              <CircularProgress className={classes.progressBtn} size={24} />
-            )}
-          </div>
+          </CircleLoading>
         </DialogActions>
       </Dialog>
     </Fragment>
