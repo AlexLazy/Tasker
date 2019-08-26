@@ -44,7 +44,7 @@ const Project: FC<ProjectProps> = ({ match }) => {
 
   if (error) return <p>ERROR</p>;
 
-  const { tasks } = !loading && data.project;
+  const tasks = !loading && data.project && data.project.tasks;
 
   const handleOpen = ({
     id,
@@ -69,14 +69,18 @@ const Project: FC<ProjectProps> = ({ match }) => {
     setOpen(true);
   };
 
-  return loading || !tasks ? (
+  return loading ? (
     <LinearProgress />
   ) : (
     <Fragment>
       <Typography variant='h4' component='h1' gutterBottom>
         {data.project.title}
       </Typography>
-      <TaskTile tasks={tasks} onTaskCardClick={handleOpen} />
+      {tasks.length ? (
+        <TaskTile tasks={tasks} onTaskCardClick={handleOpen} />
+      ) : (
+        <p>Нет задач.</p>
+      )}
       <Task
         project_id={project_id}
         task={task}

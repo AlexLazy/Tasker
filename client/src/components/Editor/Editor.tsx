@@ -55,10 +55,10 @@ export default class Editor extends Component<EditorProps, State> {
   }
 
   render() {
-    this.state.editor &&
-      (this.props.disabled
-        ? this.state.editor.setMode('readonly')
-        : this.state.editor.setMode('design'));
-    return <textarea id='editor' defaultValue={this.props.content} />;
+    const { editor } = this.state;
+    const { content, disabled } = this.props;
+    editor &&
+      (disabled ? editor.setMode('readonly') : editor.setMode('design'));
+    return <textarea id='editor' defaultValue={content} />;
   }
 }

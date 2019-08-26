@@ -8,3 +8,9 @@
 - TypeScript
 - Apollo client
 - Unit- тесты на клиенте
+
+[Демо тут](https://devartwork.ru 'Демо тут')
+
+##### Как оно примерно работает:
+
+![Preview](preview.gif)

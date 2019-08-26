@@ -16,17 +16,21 @@ const Projects: FC = () => {
 
   if (error) return <p>ERROR</p>;
 
+  const projects = data.me && data.me.projects;
+
   return loading ? (
     <LinearProgress />
   ) : (
     <Grid container spacing={3}>
-      {data.me &&
-        data.me.projects &&
-        data.me.projects.map((project: ProjectCardProps) => (
+      {projects.length ? (
+        projects.map((project: ProjectCardProps) => (
           <Grid item xl={2} lg={3} md={4} sm={6} xs={12} key={project.id}>
             <ProjectCard {...project} />
           </Grid>
-        ))}
+        ))
+      ) : (
+        <p>Нет проектов.</p>
+      )}
       <AddProjectBtn />
     </Grid>
   );

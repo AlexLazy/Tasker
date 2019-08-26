@@ -191,10 +191,21 @@ const Task: FC<TaskProps> = ({ project_id, task, open, isCreate, onClose }) => {
     setChangeLoading(true);
     isCreate
       ? await mutateAddTask({
-          variables: { project_id, content, price_total, price }
+          variables: {
+            project_id,
+            content,
+            price_total: parseInt(price_total) || '0',
+            price: parseInt(price) || '0'
+          }
         })
       : await mutateUpdateTask({
-          variables: { id, content, price_total, price, status }
+          variables: {
+            id,
+            content,
+            price_total: parseInt(price_total) || '0',
+            price: parseInt(price) || '0',
+            status
+          }
         });
     setChangeLoading(false);
     onClose();

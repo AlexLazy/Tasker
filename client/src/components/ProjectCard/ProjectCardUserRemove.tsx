@@ -101,7 +101,7 @@ const ProjectCardUserRemove: FC<ProjectCardUserRemoveProps> = ({
         <DialogTitle id='simple-dialog-title'>
           {users.length
             ? 'Удалить пользователя с проекта'
-            : 'К проекту ни кто не закреплен'}
+            : 'Пользователи отсутствуют'}
         </DialogTitle>
         <List>
           {!isLoading &&

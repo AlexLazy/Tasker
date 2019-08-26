@@ -1,4 +1,4 @@
-import React, { FC, ChangeEvent } from 'react';
+import React, { FC, useState, ChangeEvent, Fragment } from 'react';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
@@ -13,9 +13,9 @@ import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import CircleLoading from '../CircleLoading';
+import Confirm from '../Confirm';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -91,6 +91,7 @@ const TaskHeader: FC<TaskHeaderProps> = ({
   onClose
 }) => {
   const classes = useStyles();
+  const [open, setOpen] = useState(false);
 
   return (
     <AppBar className={classes.header} position='static'>
@@ -177,23 +178,24 @@ const TaskHeader: FC<TaskHeaderProps> = ({
             </Button>
           </CircleLoading>
         )}
-        <CircleLoading
-          className={classes.btn}
-          size={24}
-          isLoading={deleteLoading}
-        >
-          <Tooltip title='Удалить задачу' placement='bottom'>
-            <div>
-              <IconButton
-                aria-label='Удалить задачу'
-                onClick={onDelete}
-                disabled={deleteLoading || isCreate}
-              >
-                <DeleteIcon color='error' />
-              </IconButton>
-            </div>
-          </Tooltip>
-        </CircleLoading>
+        {!isCreate && (
+          <Fragment>
+            <IconButton
+              className={classes.btn}
+              aria-label='Удалить задачу'
+              onClick={() => setOpen(true)}
+            >
+              <DeleteIcon color='error' />
+            </IconButton>
+            <Confirm
+              title='Удалить задачу?'
+              isLoading={deleteLoading}
+              open={open}
+              onClose={() => setOpen(false)}
+              onAccept={onDelete}
+            />
+          </Fragment>
+        )}
       </Toolbar>
     </AppBar>
   );

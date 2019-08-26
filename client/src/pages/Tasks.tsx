@@ -49,9 +49,9 @@ const Tasks: FC = () => {
     });
     setOpen(true);
   };
-  return loading || !tasks ? (
+  return loading ? (
     <LinearProgress />
-  ) : (
+  ) : tasks.length ? (
     <Fragment>
       <TaskTile tasks={tasks} onTaskCardClick={handleOpen} />
       <Task
@@ -61,6 +61,8 @@ const Tasks: FC = () => {
         onClose={() => setOpen(false)}
       />
     </Fragment>
+  ) : (
+    <p>Нет задач.</p>
   );
 };
 

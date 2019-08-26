@@ -22,9 +22,9 @@ class AccountMutator
         if (!$user->google_id)
         {
           $user->update([
-            'name'           => $payload['name'],
-            'google_id'      => $payload['sub'],
-            'avatar'         => $payload['picture'],
+            'name'      => $payload['name'],
+            'google_id' => $payload['sub'],
+            'avatar'    => $payload['picture'],
             'api_token' => hash('sha256', Str::random(60))
           ]);
         }
@@ -47,13 +47,15 @@ class AccountMutator
         
       $token = hash('sha256', Str::random(60));
 
-      User::create([
-        'name' => $payload['name'],
-        'email' => $payload['email'],
-        'google_id'      => $payload['sub'],
-        'avatar'         => $payload['picture'],
+      $user = User::create([
+        'name'      => $payload['name'],
+        'email'     => $payload['email'],
+        'google_id' => $payload['sub'],
+        'avatar'    => $payload['picture'],
         'api_token' => $token
       ]);
+      $user->role = 'ADMIN';
+      $user->save();
     }
     return $token;
   }

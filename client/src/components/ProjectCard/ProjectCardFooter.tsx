@@ -6,14 +6,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
 import ProjectCardUserAdd from './ProjectCardUserAdd';
 import ProjectCardUserRemove from './ProjectCardUserRemove';
-import CircleLoading from '../CircleLoading';
+import Confirm from '../Confirm';
 
 import { IUser } from './ProjectCard';
 
@@ -46,19 +42,11 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
   inProjectUsers
 }) => {
   const classes = useStyles();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
-  const handleDelete = () => {
-    setIsDeleteOpen(true);
-  };
-
-  const handleDeleteProjectClose = () => {
-    setIsDeleteOpen(false);
-  };
+  const [open, setOpen] = useState(false);
 
   const handleDeleteProject = async () => {
     await mutateDeleteProject({ variables: { id } });
-    !loadingDeleteProject && setIsDeleteOpen(false);
+    !loadingDeleteProject && setOpen(false);
   };
 
   return (
@@ -68,34 +56,19 @@ const ProjectCardFooter: FC<ProjectCardFooterProps> = ({
         <ProjectCardUserRemove id={id} inProjectUsers={inProjectUsers} />
         <IconButton
           className={classes.deleteBtn}
-          onClick={handleDelete}
+          onClick={() => setOpen(true)}
           aria-label='Удалить проект'
         >
           <DeleteIcon />
         </IconButton>
       </CardActions>
-      <Dialog
-        open={isDeleteOpen}
-        onClose={handleDeleteProjectClose}
-        aria-labelledby='delete-dialog-title'
-        aria-describedby='alert-dialog-description'
-      >
-        <DialogTitle id='delete-dialog-title'>Удалить проект?</DialogTitle>
-        <DialogActions>
-          <Button onClick={handleDeleteProjectClose} color='primary' autoFocus>
-            Нет
-          </Button>
-          <CircleLoading size={24} isLoading={loadingDeleteProject}>
-            <Button
-              onClick={handleDeleteProject}
-              color='primary'
-              disabled={loadingDeleteProject}
-            >
-              Да
-            </Button>
-          </CircleLoading>
-        </DialogActions>
-      </Dialog>
+      <Confirm
+        title='Удалить проект?'
+        isLoading={loadingDeleteProject}
+        open={open}
+        onClose={() => setOpen(false)}
+        onAccept={handleDeleteProject}
+      />
     </Fragment>
   );
 };
