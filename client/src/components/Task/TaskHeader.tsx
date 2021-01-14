@@ -1,201 +1,189 @@
-import React, { FC, useState, ChangeEvent, Fragment } from 'react';
-
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
-import FormControl from '@material-ui/core/FormControl';
-import MenuItem from '@material-ui/core/MenuItem';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import DeleteIcon from '@material-ui/icons/Delete';
-
-import CircleLoading from '../CircleLoading';
-import Confirm from '../Confirm';
+import React, { FC, useState, ChangeEvent, Fragment } from "react";
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import {
+  FormControl,
+  MenuItem,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  TextField,
+  Select,
+  InputLabel,
+} from "@material-ui/core";
+import { Close as CloseIcon, Delete as DeleteIcon } from "@material-ui/icons";
+import CircleLoading from "../CircleLoading";
+import Confirm from "../Confirm";
+import { TaskStatus, Task, NewTask } from "./Task";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     header: {
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(3),
+    },
+    toolbar: {
+      display: "flex",
+      justifyContent: "flex-end",
     },
     label: {
-      color: '#fff !important'
+      color: "#fff !important",
     },
     input: {
       marginLeft: theme.spacing(2),
-      '& input, & label': {
-        color: '#fff !important'
+      "& input, & label": {
+        color: "#fff !important",
       },
-      '& .MuiInput-underline:before, & .MuiInput-underline:after': {
-        borderBottomColor: '#fff !important'
-      }
+      "& .MuiInput-underline:before, & .MuiInput-underline:after": {
+        borderBottomColor: "#fff !important",
+      },
     },
     selectBorder: {
-      '&::before, &::after': {
-        borderBottomColor: '#fff !important'
-      }
+      "&::before, &::after": {
+        borderBottomColor: "#fff !important",
+      },
     },
     select: {
-      color: '#fff'
+      color: "#fff",
     },
     icon: {
-      fill: '#fff'
+      fill: "#fff",
     },
     btn: {
-      marginLeft: theme.spacing(4)
+      marginLeft: theme.spacing(2),
     },
-    btnGreen: {
-      color: green[500]
+    form: {
+      marginLeft: "auto",
     },
-    close: {
-      marginRight: 'auto'
-    }
   })
 );
 
 interface TaskHeaderProps {
-  status: 'OPEN' | 'CHECKS' | 'CLOSED';
-  price_total: string;
-  price: string;
+  owner: boolean;
+  task: Task | null;
   changeLoading: boolean;
   deleteLoading: boolean;
-  disabled: boolean;
-  isCreate: boolean;
-  onStatus(e: ChangeEvent<{ name?: string | undefined; value: unknown }>): void;
-  onPriceTotal(e: ChangeEvent<HTMLInputElement>): void;
-  onPrice(e: ChangeEvent<HTMLInputElement>): void;
-  onSave(): void;
-  onDelete(): void;
-  onEnabled(): void;
+  onSave(task: Task | NewTask): void;
+  onDelete(task: Task | NewTask): void;
   onClose(): void;
 }
 
 const TaskHeader: FC<TaskHeaderProps> = ({
-  status,
-  price_total,
-  price,
+  owner,
+  task,
   changeLoading,
   deleteLoading,
-  disabled,
-  isCreate,
-  onStatus,
-  onPriceTotal,
-  onPrice,
   onSave,
   onDelete,
-  onEnabled,
-  onClose
+  onClose,
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const initialTask: Task | NewTask = task
+    ? task
+    : { priceTotal: 0, price: 0, status: TaskStatus.OPENED, content: "" };
+  const [taskState, setTaskState] = useState<Task | NewTask>(initialTask);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleStatus = (
+    e: ChangeEvent<{ name?: string | undefined; value: unknown }>
+  ) => setTaskState({ ...taskState, status: e.target.value as TaskStatus });
+  const handlePriceTotal = (e: ChangeEvent<HTMLInputElement>) =>
+    setTaskState({ ...taskState, priceTotal: parseInt(e.target.value) });
+  const handlePrice = (e: ChangeEvent<HTMLInputElement>) =>
+    setTaskState({ ...taskState, price: parseInt(e.target.value) });
+  const handleSave = (task: Task | NewTask) => () => onSave(task);
+  const handleDelete = (task: Task | NewTask) => () => onDelete(task);
 
   return (
-    <AppBar className={classes.header} position='static'>
-      <Toolbar>
-        <IconButton
-          className={classes.close}
-          edge='start'
-          color='inherit'
-          onClick={onClose}
-          aria-label='close'
-        >
-          <CloseIcon />
-        </IconButton>
-        <FormControl>
-          <InputLabel className={classes.label} htmlFor='task-status'>
-            Статус
-          </InputLabel>
-          <Select
-            className={classes.selectBorder}
-            classes={{
-              select: classes.select,
-              icon: classes.icon
-            }}
-            value={status}
-            onChange={onStatus}
-            inputProps={{
-              name: 'status',
-              id: 'task-status'
-            }}
-            disabled={disabled || isCreate}
-          >
-            <MenuItem value='OPEN'>Открыта</MenuItem>
-            <MenuItem value='CHECKS'>На проверке</MenuItem>
-            <MenuItem value='CLOSED'>Закрыта</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          classes={{
-            root: classes.input
-          }}
-          label='Стоимость задачи'
-          color='#fff'
-          type='number'
-          value={price_total}
-          onChange={onPriceTotal}
-          disabled={disabled}
-        />
-        <TextField
-          classes={{
-            root: classes.input
-          }}
-          label='Стоимость работы'
-          color='#fff'
-          type='number'
-          value={price}
-          onChange={onPrice}
-          disabled={disabled}
-        />
-        {disabled ? (
-          <Button
-            variant='outlined'
-            className={classes.btn}
-            color='inherit'
-            onClick={onEnabled}
-          >
-            Редактировать
-          </Button>
-        ) : (
+    <AppBar className={classes.header} position="static">
+      <Toolbar className={classes.toolbar}>
+        {owner && task?.id && (
+          <Fragment>
+            <IconButton aria-label="Удалить задачу" onClick={handleOpen}>
+              <DeleteIcon color="error" />
+            </IconButton>
+            <Confirm
+              title="Удалить задачу?"
+              isLoading={deleteLoading}
+              open={open}
+              onClose={handleClose}
+              onAccept={handleDelete(task)}
+            />
+          </Fragment>
+        )}
+        {!(!owner && task?.status === TaskStatus.CLOSED) && (
+          <FormControl className={classes.form}>
+            <InputLabel className={classes.label} htmlFor="task-status">
+              Статус
+            </InputLabel>
+            <Select
+              className={classes.selectBorder}
+              classes={{
+                select: classes.select,
+                icon: classes.icon,
+              }}
+              value={taskState.status}
+              onChange={handleStatus}
+              inputProps={{
+                name: "status",
+                id: "task-status",
+              }}
+              disabled={!task}
+            >
+              <MenuItem value={TaskStatus.OPENED}>Открыта</MenuItem>
+              <MenuItem value={TaskStatus.CHECKING}>На проверке</MenuItem>
+              {owner && <MenuItem value={TaskStatus.CLOSED}>Закрыта</MenuItem>}
+            </Select>
+          </FormControl>
+        )}
+        {owner && (
+          <Fragment>
+            <TextField
+              classes={{
+                root: classes.input,
+              }}
+              label="Стоимость задачи"
+              type="number"
+              value={taskState.priceTotal}
+              onChange={handlePriceTotal}
+            />
+            <TextField
+              classes={{
+                root: classes.input,
+              }}
+              label="Стоимость работы"
+              type="number"
+              value={taskState.price}
+              onChange={handlePrice}
+            />
+          </Fragment>
+        )}
+        {!(!owner && task?.status === TaskStatus.CLOSED) && (
           <CircleLoading
             className={classes.btn}
             size={24}
             isLoading={changeLoading}
           >
             <Button
-              classes={{
-                outlined: classes.btnGreen
-              }}
-              variant='outlined'
-              color='inherit'
-              onClick={onSave}
+              variant="outlined"
+              color="inherit"
+              onClick={handleSave(taskState)}
               disabled={changeLoading}
             >
-              Сохранить
+              {task ? "Обновить" : "Сохранить"}
             </Button>
           </CircleLoading>
         )}
-        {!isCreate && (
-          <Fragment>
-            <IconButton
-              className={classes.btn}
-              aria-label='Удалить задачу'
-              onClick={() => setOpen(true)}
-            >
-              <DeleteIcon color='error' />
-            </IconButton>
-            <Confirm
-              title='Удалить задачу?'
-              isLoading={deleteLoading}
-              open={open}
-              onClose={() => setOpen(false)}
-              onAccept={onDelete}
-            />
-          </Fragment>
-        )}
+        <IconButton
+          className={classes.btn}
+          edge="start"
+          color="inherit"
+          onClick={onClose}
+          aria-label="close"
+        >
+          <CloseIcon />
+        </IconButton>
       </Toolbar>
     </AppBar>
   );

@@ -1,2 +1,2 @@
-import TaskCard from './TaskCard';
+import TaskCard from "./TaskCard";
 export default TaskCard;

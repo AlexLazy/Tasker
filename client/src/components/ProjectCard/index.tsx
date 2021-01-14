@@ -1,2 +1,2 @@
-import ProjectCard from './ProjectCard';
+import ProjectCard from "./ProjectCard";
 export default ProjectCard;

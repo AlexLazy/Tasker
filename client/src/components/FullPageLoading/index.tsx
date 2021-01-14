@@ -1,2 +1,2 @@
-import FullPageLoading from './FullPageLoading';
+import FullPageLoading from "./FullPageLoading";
 export default FullPageLoading;

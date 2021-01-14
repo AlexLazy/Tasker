@@ -1,67 +1,79 @@
-import React, { FC, useState } from 'react';
-
-import { useQuery } from '@apollo/react-hooks';
-import { GET_LOCAL_CURRENT_USER } from '../../gql/queries';
-
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Chip from '@material-ui/core/Chip';
-import EditIcon from '@material-ui/icons/Edit';
-import Typography from '@material-ui/core/Typography';
-
-import { Task } from '../Task/Task';
-import ProjectCardPrice from '../ProjectCard/ProjectCardPrice';
+import React, { FC, useState } from "react";
+import sanitizeHtml from "sanitize-html";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardActions,
+  Chip,
+  Typography,
+} from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import ProjectCardPrice from "../ProjectCard/ProjectCardPrice";
+import { Task, TaskStatus } from "../Task/Task";
+import { meVar } from "../../cache";
 
 const useStyles = makeStyles({
   root: {
-    cursor: 'pointer'
+    cursor: "pointer",
   },
   header: {
-    display: 'flex'
+    display: "flex",
   },
   content: {
     maxHeight: 200,
-    overflow: 'hidden'
-  }
+    overflow: "hidden",
+  },
 });
 
 interface TaskCardProps extends Task {
   onClick?(): void;
 }
 
-const taskStatus = (status: string) => {
+const taskStatus = (status: TaskStatus) => {
   switch (status) {
-    case 'CHECKS':
-      return <Chip size='small' label='На проверке' color='secondary' />;
-    case 'CLOSED':
-      return <Chip size='small' label='Закрыта' />;
+    case TaskStatus.CHECKING:
+      return <Chip size="small" label="На проверке" color="secondary" />;
+    case TaskStatus.CLOSED:
+      return <Chip size="small" label="Закрыта" />;
     default:
-      return <Chip size='small' label='Открыта' color='primary' />;
+      return <Chip size="small" label="Открыта" color="primary" />;
   }
 };
 
 const TaskCard: FC<TaskCardProps> = ({
+  authorId,
   content,
-  price_total,
+  priceTotal,
   price,
   status,
-  updated_at,
-  onClick
+  updatedAt,
+  onClick,
 }) => {
   const classes = useStyles();
   const [isHover, setIsHover] = useState(false);
-  const { data } = useQuery(GET_LOCAL_CURRENT_USER);
-  const role = data && data.me && data.me.role;
+  const owner = meVar().id === authorId;
+  const updatedDate =
+    updatedAt &&
+    new Intl.DateTimeFormat("ru", {
+      hour: "numeric",
+      minute: "numeric",
+      weekday: "narrow",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(new Date(updatedAt));
+
+  const handleEnter = () => setIsHover(true);
+  const handleLeave = () => setIsHover(false);
 
   return (
     <Card
       className={classes.root}
       raised={isHover}
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
       onClick={onClick}
     >
       <CardHeader
@@ -69,19 +81,19 @@ const TaskCard: FC<TaskCardProps> = ({
         avatar={taskStatus(status)}
         action={
           <ProjectCardPrice
-            role={role}
-            price_total={price_total}
+            owner={owner}
+            priceTotal={priceTotal}
             price={price}
           />
         }
       />
       <CardContent
         className={classes.content}
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
       />
       <CardActions disableSpacing>
-        <EditIcon fontSize='small' />
-        <Typography variant='caption'>&nbsp;{updated_at}</Typography>
+        <EditIcon fontSize="small" />
+        <Typography variant="caption">&nbsp;{updatedDate}</Typography>
       </CardActions>
     </Card>
   );

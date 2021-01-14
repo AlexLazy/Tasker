@@ -1,41 +1,37 @@
-import React, { FC, MouseEvent } from 'react';
-
-import { useQuery, useApolloClient } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
-
-import { Link } from 'react-router-dom';
-
-import { makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Avatar from '@material-ui/core/Avatar';
-import IconButton from '@material-ui/core/IconButton';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import ExitToApp from '@material-ui/icons/ExitToApp';
-import Tooltip from '@material-ui/core/Tooltip';
+import React, { FC, MouseEvent, useState } from "react";
+import { GoogleLogout } from "react-google-login";
+import { Link } from "react-router-dom";
+import { useQuery, gql } from "@apollo/client";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  LinearProgress,
+} from "@material-ui/core";
+import ExitToApp from "@material-ui/icons/ExitToApp";
 
 const useStyles = makeStyles({
   logo: {
-    flexGrow: 1
-  }
+    flexGrow: 1,
+  },
 });
 
-export const GET_USER_INFO = gql`
-  query GetUserInfo {
-    me @client {
-      avatar
-      email
-    }
+const GET_CURRENT_USER = gql`
+  query GetCurrentUser {
+    me @client
   }
 `;
 
 const Header: FC = () => {
   const classes = useStyles();
-  const client = useApolloClient();
-  const { data } = useQuery(GET_USER_INFO);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { data, loading } = useQuery(GET_CURRENT_USER);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
   const handleMenu = (event: MouseEvent<HTMLElement>) =>
@@ -43,62 +39,58 @@ const Header: FC = () => {
 
   const handleClose = () => setAnchorEl(null);
 
-  const handleLogout = () => {
-    client.writeData({ data: { me: null, isLoggedIn: false } });
-    localStorage.clear();
-  };
+  const handleLogout = () => window.location.reload();
 
-  const handleCreateUser = () => {
-    setAnchorEl(null);
-    client.writeData({
-      data: {
-        isNewAccountOpen: true
-      }
-    });
-  };
-
-  return (
-    <AppBar position='static'>
+  return loading ? (
+    <LinearProgress />
+  ) : (
+    <AppBar position="static">
       <Toolbar>
-        <Typography className={classes.logo} variant='h6'>
+        <Typography className={classes.logo} variant="h6">
           Tasker
         </Typography>
         <Tooltip title={data.me.email}>
           <IconButton
-            aria-label='account of current user'
-            aria-controls='menu-appbar'
-            aria-haspopup='true'
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
             onClick={handleMenu}
-            color='inherit'
+            color="inherit"
           >
-            <Avatar alt='Profile Picture' src={data.me.avatar} />
+            <Avatar alt="Profile Picture" src={data.me.avatar} />
           </IconButton>
         </Tooltip>
         <Menu
-          id='menu-appbar'
+          id="menu-appbar"
           anchorEl={anchorEl}
           anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right'
+            vertical: "top",
+            horizontal: "right",
           }}
           keepMounted
           transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right'
+            vertical: "top",
+            horizontal: "right",
           }}
           open={open}
           onClose={handleClose}
         >
-          <MenuItem component={Link} to='/' onClick={handleClose}>
+          <MenuItem component={Link} to="/dashboard" onClick={handleClose}>
             Проекты
           </MenuItem>
-          <MenuItem component={Link} to='/tasks' onClick={handleClose}>
+          <MenuItem component={Link} to="/tasks" onClick={handleClose}>
             Задачи
           </MenuItem>
-          <MenuItem onClick={handleCreateUser}>Добавить пользователя</MenuItem>
-          <MenuItem onClick={handleLogout}>
-            Выйти <ExitToApp />
-          </MenuItem>
+          <GoogleLogout
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}
+            buttonText="logout"
+            onLogoutSuccess={handleLogout}
+            render={({ onClick }) => (
+              <MenuItem onClick={onClick}>
+                Выйти <ExitToApp />
+              </MenuItem>
+            )}
+          />
         </Menu>
       </Toolbar>
     </AppBar>

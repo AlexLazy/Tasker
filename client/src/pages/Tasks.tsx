@@ -1,65 +1,58 @@
-import React, { FC, Fragment, useState } from 'react';
+import React, { FC, Fragment, useState } from "react";
+import { useQuery, gql } from "@apollo/client";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import TaskTile from "../components/TaskTile";
+import Task from "../components/Task/";
+import { Task as TaskProps } from "../components/Task/Task";
 
-import { useQuery } from '@apollo/react-hooks';
-import { GET_USER_TASKS } from '../gql/queries';
-
-import LinearProgress from '@material-ui/core/LinearProgress';
-
-import Task from '../components/Task';
-import TaskTile from '../components/TaskTile';
-import { Task as TaskProps } from '../components/Task/Task';
-
-interface Project {
-  tasks: TaskProps[];
-}
+const GET_TASKS = gql`
+  query GetTasks {
+    tasks {
+      id
+      authorId
+      content
+      priceTotal
+      price
+      status
+      updatedAt
+    }
+  }
+`;
 
 const Tasks: FC = () => {
   const [open, setOpen] = useState(false);
-  const { data, loading, error } = useQuery(GET_USER_TASKS);
   const [task, setTask] = useState<TaskProps | null>(null);
-  if (error) return <p>ERROR</p>;
-
-  const { tasks } =
-    !loading &&
-    data.me &&
-    data.me.projects &&
-    data.me.projects
-      .filter(({ tasks }: { tasks: TaskProps[] }) => tasks.length)
-      .reduce(
-        (acc: Project, curr: Project) => {
-          acc.tasks = [...acc.tasks, ...curr.tasks];
-          return acc;
-        },
-        { tasks: [] }
-      );
+  const { data, loading, refetch } = useQuery(GET_TASKS, {
+    fetchPolicy: "cache-and-network",
+  });
 
   const handleOpen = ({
     id,
+    authorId,
     content,
-    price_total,
+    priceTotal,
     price,
-    status
+    status,
   }: TaskProps) => () => {
     setTask({
       id,
+      authorId,
       content,
-      price_total,
+      priceTotal,
       price,
-      status
+      status,
     });
     setOpen(true);
   };
+
+  const handleClose = () => setOpen(false);
+
   return loading ? (
     <LinearProgress />
-  ) : tasks.length ? (
+  ) : data?.tasks.length ? (
     <Fragment>
-      <TaskTile tasks={tasks} onTaskCardClick={handleOpen} />
-      <Task
-        task={task}
-        open={open}
-        isCreate={false}
-        onClose={() => setOpen(false)}
-      />
+      <TaskTile tasks={data.tasks} onTaskCardClick={handleOpen} />
+      <Task task={task} open={open} refetch={refetch} onClose={handleClose} />
     </Fragment>
   ) : (
     <p>Нет задач.</p>

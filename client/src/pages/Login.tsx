@@ -1,112 +1,80 @@
-import React, { FC, useState, ChangeEvent } from 'react';
-
-import { REQUEST_ERROR, COMPLETE_ERROR } from '../constants';
-import { useApolloClient, useMutation } from '@apollo/react-hooks';
-import { LOGIN, CREATE_ADMIN } from '../gql/mutations';
-
-import { makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import Switch from '@material-ui/core/Switch';
-
+import React, { FC } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { Button } from "@material-ui/core";
+import { useMutation, gql } from "@apollo/client";
+import { useHistory } from "react-router-dom";
 import GoogleLogin, {
   GoogleLoginResponse,
-  GoogleLoginResponseOffline
-} from 'react-google-login';
-
-import FullPageLoading from '../components/FullPageLoading';
+  GoogleLoginResponseOffline,
+} from "react-google-login";
+import { meVar, authVar } from "../cache";
+import FullPageLoading from "../components/FullPageLoading";
 
 const useStyles = makeStyles({
   root: {
-    textAlign: 'center',
-    zIndex: 2
+    textAlign: "center",
+    zIndex: 2,
   },
   btn: {
-    marginBottom: 16
-  }
+    marginBottom: 16,
+  },
 });
 
+const LOGIN = gql`
+  mutation Login($id_token: String!) {
+    login(id_token: $id_token) {
+      message
+      userInfo {
+        id
+        name
+        email
+        avatar
+      }
+      token
+    }
+  }
+`;
 const Login: FC = () => {
+  const [login, { loading }] = useMutation(LOGIN);
   const classes = useStyles();
-  const client = useApolloClient();
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  const [role, setRole] = useState(false);
+  const history = useHistory();
 
-  const [login, { loading }] = useMutation<{ login: string }>(LOGIN, {
-    onCompleted({ login }) {
-      if (login === 'User not found') {
-        client.writeData({
-          data: {
-            error: {
-              __typename: 'error',
-              text: 'Такого пользователя не существует.',
-              open: true
-            }
-          }
-        });
-      } else {
-        localStorage.setItem('token', 'Bearer ' + login);
-        document.location.reload();
-      }
-    },
-    onError(error) {
-      client.writeData(REQUEST_ERROR(error));
-    }
-  });
-
-  //Временная часть для демонстрации, в конечном варианте возможности создавать админа с клиента не планируется
-  const [loginAdmin, { loading: loadingAdmin }] = useMutation<{
-    createAdmin: string;
-  }>(CREATE_ADMIN, {
-    onCompleted({ createAdmin }) {
-      if (!createAdmin) {
-        client.writeData(COMPLETE_ERROR);
-      } else {
-        localStorage.setItem('token', 'Bearer ' + createAdmin);
-        document.location.reload();
-      }
-    },
-    onError(error) {
-      client.writeData(REQUEST_ERROR(error));
-    }
-  });
-
-  const responseGoogle = (login: Function) => (
+  const handleSuccess = async (
     response: GoogleLoginResponse | GoogleLoginResponseOffline
   ) => {
     const { id_token } = (response as GoogleLoginResponse).getAuthResponse();
-    const options = {
-      variables: {
-        id_token
-      }
-    };
+    const { data } = await login({ variables: { id_token } });
+    const { expiresAt, token } = data.login;
 
-    role ? loginAdmin(options) : login(options);
+    meVar(data.login.userInfo);
+    authVar({ expiresAt, token });
+    history.push("/dashboard");
   };
 
-  const handleRole = (e: ChangeEvent<HTMLInputElement>) =>
-    setRole(e.target.checked);
-
-  return (
+  return loading ? (
+    <FullPageLoading />
+  ) : (
     <FullPageLoading>
-      {!loading && !loadingAdmin && clientId && (
-        <section className={classes.root}>
-          <GoogleLogin
-            className={classes.btn}
-            clientId={clientId}
-            buttonText='Login'
-            onSuccess={responseGoogle(login)}
-            onFailure={responseGoogle}
-            cookiePolicy={'single_host_origin'}
-          />
-          <Grid component='label' container alignItems='center' spacing={1}>
-            <Grid item>Разработчик</Grid>
-            <Grid item>
-              <Switch checked={role} onChange={handleRole} value='antoine' />
-            </Grid>
-            <Grid item>Администратор</Grid>
-          </Grid>
-        </section>
-      )}
+      <section className={classes.root}>
+        <GoogleLogin
+          className={classes.btn}
+          clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}
+          buttonText="Login"
+          onSuccess={handleSuccess}
+          isSignedIn={true}
+          cookiePolicy={"single_host_origin"}
+          render={({ onClick, disabled }) => (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={onClick}
+              disabled={disabled}
+            >
+              Вход
+            </Button>
+          )}
+        />
+      </section>
     </FullPageLoading>
   );
 };

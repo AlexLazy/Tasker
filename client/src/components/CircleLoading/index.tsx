@@ -1,2 +1,2 @@
-import CircleLoading from './CircleLoading';
+import CircleLoading from "./CircleLoading";
 export default CircleLoading;

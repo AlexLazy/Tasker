@@ -1,29 +1,41 @@
-import React, { FC, Fragment, useState } from 'react';
+import React, { FC, Fragment, useState } from "react";
+import { match } from "react-router-dom";
+import { useQuery, gql } from "@apollo/client";
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import { LinearProgress, Typography, Fab, Tooltip } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
+import Task from "../components/Task";
+import TaskTile from "../components/TaskTile";
+import { Task as TaskProps } from "../components/Task/Task";
+import { meVar } from "../cache";
 
-import { match } from 'react-router-dom';
-
-import { useQuery } from '@apollo/react-hooks';
-import { GET_PROJECT } from '../gql/queries';
-
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Typography from '@material-ui/core/Typography';
-import Fab from '@material-ui/core/Fab';
-import Tooltip from '@material-ui/core/Tooltip';
-import AddIcon from '@material-ui/icons/Add';
-
-import Task from '../components/Task';
-import TaskTile from '../components/TaskTile';
-import { Task as TaskProps } from '../components/Task/Task';
+const GET_PROJECT = gql`
+  query GetProject($id: ID!) {
+    project(id: $id) {
+      id
+      authorId
+      title
+      tasks {
+        id
+        authorId
+        content
+        priceTotal
+        price
+        status
+        updatedAt
+      }
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     btn: {
-      position: 'fixed',
+      position: "fixed",
       bottom: theme.spacing(3),
       right: theme.spacing(3),
-      zIndex: 1000
-    }
+      zIndex: 1000,
+    },
   })
 );
 
@@ -35,37 +47,42 @@ const Project: FC<ProjectProps> = ({ match }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<TaskProps | null>(null);
-  const [isCreate, setIsCreate] = useState(false);
-  const project_id = +match.params.id;
-  const { data, loading, error } = useQuery(GET_PROJECT, {
-    variables: { id: project_id },
-    fetchPolicy: 'network-only'
+  const projectId = +match.params.id;
+  const { data, loading, refetch } = useQuery(GET_PROJECT, {
+    variables: { id: projectId },
+    fetchPolicy: "cache-and-network",
   });
 
-  if (error) return <p>ERROR</p>;
+  const me = meVar();
 
-  const tasks = !loading && data.project && data.project.tasks;
+  const project = !loading && data?.project;
+  const tasks = project?.tasks ?? [];
 
   const handleOpen = ({
     id,
+    authorId,
     content,
-    price_total,
+    priceTotal,
     price,
-    status
+    status,
   }: TaskProps) => () => {
     setTask({
       id,
+      authorId,
       content,
-      price_total,
+      priceTotal,
       price,
-      status
+      status,
     });
-    setIsCreate(false);
     setOpen(true);
   };
 
+  const handleClose = () => {
+    setTask(null);
+    setOpen(false);
+  };
+
   const handleCreate = () => {
-    setIsCreate(true);
     setOpen(true);
   };
 
@@ -73,8 +90,8 @@ const Project: FC<ProjectProps> = ({ match }) => {
     <LinearProgress />
   ) : (
     <Fragment>
-      <Typography variant='h4' component='h1' gutterBottom>
-        {data.project.title}
+      <Typography variant="h4" component="h1" gutterBottom>
+        {project?.title}
       </Typography>
       {tasks.length ? (
         <TaskTile tasks={tasks} onTaskCardClick={handleOpen} />
@@ -82,22 +99,24 @@ const Project: FC<ProjectProps> = ({ match }) => {
         <p>Нет задач.</p>
       )}
       <Task
-        project_id={project_id}
+        projectId={projectId}
         task={task}
         open={open}
-        isCreate={isCreate}
-        onClose={() => setOpen(false)}
+        refetch={refetch}
+        onClose={handleClose}
       />
-      <Tooltip title='Создать задачу' placement='left'>
-        <Fab
-          color='secondary'
-          aria-label='Создать задачу'
-          className={classes.btn}
-          onClick={handleCreate}
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
+      {data?.project?.authorId === me.id && (
+        <Tooltip title="Создать задачу" placement="left">
+          <Fab
+            color="secondary"
+            aria-label="Создать задачу"
+            className={classes.btn}
+            onClick={handleCreate}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      )}
     </Fragment>
   );
 };
