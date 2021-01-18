@@ -8,6 +8,7 @@ import {
   BottomNavigationAction,
   Snackbar,
   IconButton,
+  LinearProgress,
 } from "@material-ui/core";
 import {
   Folder as FolderIcon,
@@ -76,19 +77,21 @@ const Pages: FC = () => {
   return loading ? (
     <FullPageLoading />
   ) : (
-    <Suspense fallback={<FullPageLoading />}>
+    <>
       <Router>
         {auth.token ? (
           <CssBaseline>
             <Header />
             <Container className={classes.container} maxWidth={false}>
-              <Switch>
-                <Route exact path="/" component={Login} />
-                <Route exact path="/dashboard" component={Dashboard} />
-                <Route exact path="/project/:id" component={Project} />
-                <Route exact path="/tasks" component={Tasks} />
-                <Route path="**" component={Page404} />
-              </Switch>
+              <Suspense fallback={<LinearProgress />}>
+                <Switch>
+                  <Route exact path="/" component={Login} />
+                  <Route exact path="/dashboard" component={Dashboard} />
+                  <Route exact path="/project/:id" component={Project} />
+                  <Route exact path="/tasks" component={Tasks} />
+                  <Route path="**" component={Page404} />
+                </Switch>
+              </Suspense>
             </Container>
             <BottomNavigation
               className={classes.navigation}
@@ -135,7 +138,7 @@ const Pages: FC = () => {
           }
         />
       )}
-    </Suspense>
+    </>
   );
 };
 

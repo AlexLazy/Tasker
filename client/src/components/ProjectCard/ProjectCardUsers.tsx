@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useState } from "react";
+import React, { FC, useState } from "react";
 import { useApolloClient, gql } from "@apollo/client";
 import {
   Dialog,
@@ -111,7 +111,7 @@ const ProjectCardUsers: FC<ProjectCardUsersProps> = ({
   };
 
   return (
-    <Fragment>
+    <>
       <CircleLoading size={24} isLoading={loading}>
         <IconButton
           aria-label={
@@ -155,7 +155,7 @@ const ProjectCardUsers: FC<ProjectCardUsersProps> = ({
           </List>
         </CircleLoading>
       </Dialog>
-    </Fragment>
+    </>
   );
 };
 export default ProjectCardUsers;

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, FC, ReactChild } from "react";
+import React, { useState, FC, ReactChild } from "react";
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
 import AddIcon from "@material-ui/icons/Add";
@@ -65,7 +65,7 @@ const AddBtn: FC<AddBtnProps> = ({
   };
 
   return (
-    <Fragment>
+    <>
       <Tooltip title={title} placement="left">
         <Fab
           color="secondary"
@@ -99,7 +99,7 @@ const AddBtn: FC<AddBtnProps> = ({
           </CircleLoading>
         </DialogActions>
       </Dialog>
-    </Fragment>
+    </>
   );
 };
 export default AddBtn;

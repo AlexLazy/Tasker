@@ -1,15 +1,9 @@
 import React, { FC, ChangeEvent, useState } from "react";
-import { useQuery, useMutation, gql, NetworkStatus } from "@apollo/client";
-import {
-  TextField,
-  LinearProgress,
-  Grid,
-  makeStyles,
-  createStyles,
-  Theme,
-} from "@material-ui/core";
+import { useQuery, useMutation, gql } from "@apollo/client";
+import { TextField, LinearProgress, Grid } from "@material-ui/core";
 import ProjectCard from "../components/ProjectCard";
 import AddBtn from "../components/AddBtn";
+import RefetchProgress, { useRefetch } from "../components/RefetchProgress";
 import { ProjectCardProps } from "../components/ProjectCard/ProjectCard";
 
 const GET_PROJECTS = gql`
@@ -40,23 +34,13 @@ const ADD_PROJECT = gql`
   }
 `;
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    progress: {
-      position: "fixed",
-      bottom: theme.spacing(7),
-      width: "100%",
-    },
-  })
-);
-
 const Dashboard: FC = () => {
-  const classes = useStyles();
   const [title, setTitle] = useState("");
   const { data, loading, refetch, networkStatus } = useQuery(GET_PROJECTS, {
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "no-cache",
   });
+  const isNotRefetch = useRefetch(loading, networkStatus);
   const [addProject, { loading: loadingProject }] = useMutation(ADD_PROJECT);
 
   const handleChange = (
@@ -65,17 +49,15 @@ const Dashboard: FC = () => {
 
   const handleAddProject = async () => {
     await addProject({ variables: { title } });
-    await refetch();
     setTitle("");
+    await refetch();
   };
 
-  return loading && networkStatus !== NetworkStatus.refetch ? (
+  return isNotRefetch ? (
     <LinearProgress />
   ) : (
     <Grid container spacing={3}>
-      {networkStatus === NetworkStatus.refetch && (
-        <LinearProgress className={classes.progress} />
-      )}
+      <RefetchProgress networkStatus={networkStatus} />
       {data?.projects.length ? (
         data.projects.map((project: ProjectCardProps) => (
           <Grid item xl={2} lg={3} md={4} sm={6} xs={12} key={project.id}>
@@ -91,7 +73,12 @@ const Dashboard: FC = () => {
         disabled={!title}
         onSave={handleAddProject}
       >
-        <TextField label="Название проекта" fullWidth onChange={handleChange} />
+        <TextField
+          label="Название проекта"
+          fullWidth
+          autoFocus
+          onChange={handleChange}
+        />
       </AddBtn>
     </Grid>
   );

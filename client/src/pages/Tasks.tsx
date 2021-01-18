@@ -1,9 +1,10 @@
-import React, { FC, Fragment, useState } from "react";
+import React, { FC, useState } from "react";
 import { useQuery, gql } from "@apollo/client";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import TaskTile from "../components/TaskTile";
 import Task from "../components/Task/";
 import { Task as TaskProps } from "../components/Task/Task";
+import RefetchProgress, { useRefetch } from "../components/RefetchProgress";
 
 const GET_TASKS = gql`
   query GetTasks {
@@ -22,9 +23,12 @@ const GET_TASKS = gql`
 const Tasks: FC = () => {
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<TaskProps | null>(null);
-  const { data, loading, refetch } = useQuery(GET_TASKS, {
-    fetchPolicy: "cache-and-network",
+  const { data, loading, refetch, networkStatus } = useQuery(GET_TASKS, {
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "no-cache",
   });
+
+  const isNotRefetch = useRefetch(loading, networkStatus);
 
   const handleOpen = ({
     id,
@@ -47,13 +51,14 @@ const Tasks: FC = () => {
 
   const handleClose = () => setOpen(false);
 
-  return loading ? (
+  return isNotRefetch ? (
     <LinearProgress />
   ) : data?.tasks.length ? (
-    <Fragment>
+    <>
+      <RefetchProgress networkStatus={networkStatus} />
       <TaskTile tasks={data.tasks} onTaskCardClick={handleOpen} />
       <Task task={task} open={open} refetch={refetch} onClose={handleClose} />
-    </Fragment>
+    </>
   ) : (
     <p>Нет задач.</p>
   );

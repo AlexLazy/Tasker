@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useState } from "react";
+import React, { FC, useState } from "react";
 import { match } from "react-router-dom";
 import { useQuery, gql } from "@apollo/client";
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
@@ -7,6 +7,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Task from "../components/Task";
 import TaskTile from "../components/TaskTile";
 import { Task as TaskProps } from "../components/Task/Task";
+import RefetchProgress, { useRefetch } from "../components/RefetchProgress";
 import { meVar } from "../cache";
 
 const GET_PROJECT = gql`
@@ -47,15 +48,19 @@ const Project: FC<ProjectProps> = ({ match }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [task, setTask] = useState<TaskProps | null>(null);
+
   const projectId = +match.params.id;
-  const { data, loading, refetch } = useQuery(GET_PROJECT, {
+
+  const { data, loading, refetch, networkStatus } = useQuery(GET_PROJECT, {
     variables: { id: projectId },
-    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "no-cache",
   });
+  const isNotRefetch = useRefetch(loading, networkStatus);
 
   const me = meVar();
 
-  const project = !loading && data?.project;
+  const project = data?.project;
   const tasks = project?.tasks ?? [];
 
   const handleOpen = ({
@@ -86,10 +91,11 @@ const Project: FC<ProjectProps> = ({ match }) => {
     setOpen(true);
   };
 
-  return loading ? (
+  return isNotRefetch ? (
     <LinearProgress />
   ) : (
-    <Fragment>
+    <>
+      <RefetchProgress networkStatus={networkStatus} />
       <Typography variant="h4" component="h1" gutterBottom>
         {project?.title}
       </Typography>
@@ -117,7 +123,7 @@ const Project: FC<ProjectProps> = ({ match }) => {
           </Fab>
         </Tooltip>
       )}
-    </Fragment>
+    </>
   );
 };
 

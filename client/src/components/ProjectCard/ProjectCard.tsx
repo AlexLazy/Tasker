@@ -104,8 +104,8 @@ const ProjectCard: FC<ProjectCardProps> = ({
 
   const handleDeleteProject = async () => {
     await removeProject({ variables: { id } });
-    await refetch();
     setOpen(false);
+    await refetch();
   };
 
   return (

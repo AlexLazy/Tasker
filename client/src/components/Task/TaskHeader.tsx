@@ -1,4 +1,4 @@
-import React, { FC, useState, ChangeEvent, Fragment } from "react";
+import React, { FC, useState, ChangeEvent } from "react";
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import {
   FormControl,
@@ -99,7 +99,7 @@ const TaskHeader: FC<TaskHeaderProps> = ({
     <AppBar className={classes.header} position="static">
       <Toolbar className={classes.toolbar}>
         {owner && task?.id && (
-          <Fragment>
+          <>
             <IconButton aria-label="Удалить задачу" onClick={handleOpen}>
               <DeleteIcon color="error" />
             </IconButton>
@@ -110,7 +110,7 @@ const TaskHeader: FC<TaskHeaderProps> = ({
               onClose={handleClose}
               onAccept={handleDelete(task)}
             />
-          </Fragment>
+          </>
         )}
         {!(!owner && task?.status === TaskStatus.CLOSED) && (
           <FormControl className={classes.form}>
@@ -138,7 +138,7 @@ const TaskHeader: FC<TaskHeaderProps> = ({
           </FormControl>
         )}
         {owner && (
-          <Fragment>
+          <>
             <TextField
               classes={{
                 root: classes.input,
@@ -157,7 +157,7 @@ const TaskHeader: FC<TaskHeaderProps> = ({
               value={taskState.price}
               onChange={handlePrice}
             />
-          </Fragment>
+          </>
         )}
         {!(!owner && task?.status === TaskStatus.CLOSED) && (
           <CircleLoading
